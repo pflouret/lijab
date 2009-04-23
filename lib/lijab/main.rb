@@ -11,6 +11,7 @@ require 'lijab/contacts'
 require 'lijab/history'
 require 'lijab/input'
 require 'lijab/out'
+require 'lijab/version'
 require 'lijab/xmpp4r/message'
 
 include Term
@@ -149,6 +150,10 @@ module Main
                     "configs base directory") { |v| options[:basedir] = v }
             opts.on("-a", "--account ACCOUNTNAME",
                     "the name of the account to connect to") { |v| options[:account] = v }
+            opts.on("-V", "--version", "print version information") do |v|
+               puts "lijab #{Lijab::VERSION}"
+               exit(0)
+            end
          end
          op.parse!
       rescue OptionParser::MissingArgument
