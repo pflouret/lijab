@@ -4,28 +4,26 @@ module Lijab
 module Config
    module_function
 
-   ACCOUNT_DEFAULTS = {"resource"=>"lijab",
-                       "port"=>5222}
-
    def init(args)
       setup_basedir(args[:basedir])
 
       read_accounts(args[:account])
 
       @jid = Jabber::JID.new("#{@account['jabberid']}")
-      @jid.resource ||= "lijab"
+      @jid.resource ||= "lijab#{(0...5).map{rand(10).to_s}.join}"
       @account["server"] ||= @jid.domain
    end
 
    def read_accounts(account)
       @accounts = []
       File.open(@accounts_file) do |f|
-         YAML.load_documents(f) { |a| @accounts << ACCOUNT_DEFAULTS.merge(a) }
+         YAML.load_documents(f) { |a| @accounts << a }
       end
 
       errors = []
       errors << "need at least one account!" if @accounts.empty?
       @accounts.each do |a|
+         a["port"] ||= 5222
          errors << "account #{a} needs a name" unless a.key?("name")
          errors << "account #{a} needs a jabberid" unless a.key?("jabberid")
       end

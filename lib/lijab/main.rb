@@ -77,7 +77,8 @@ module Main
          end
 
          Out::inline("connecting...", true)
-         @client.connect(Config.account["server"])
+
+         @client.connect(Config.account["server"], Config.account["port"])
 
          loop do
             begin
