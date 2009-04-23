@@ -33,7 +33,9 @@ module Out
 
    def presence(from, presence, color=:clear)
       @monitor.synchronize do
-         inline("** #{from} is now ".send(color) + presence.pretty(true))
+         s = "** #{from} (#{presence.priority || 0}) is now ".send(color)
+         s += presence.pretty(true)
+         inline(s)
       end
    end
 
