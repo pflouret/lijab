@@ -22,6 +22,8 @@
 module Lijab
 
 module Commands
+   @registered = {}
+
    module CommandMixin
       def define_meta(*names)
          class_eval do
@@ -38,50 +40,18 @@ module Commands
       end
    end
 
-   class Command
-      @@registered = {}
+   class CommandError < RuntimeError
+   end
 
+   class Command
       class << self
          private :new
-      end
-
-      def self.registered
-         @@registered
-      end
-
-      def self.load_commands
-         Dir["#{File.dirname(File.expand_path(__FILE__))}/commands/*.rb"].each { |f| load f }
-         #Dir["#{EXTENSIONS_PATH}/**/*.rb"].each { |f| load f }
-      end
-
-      def self.run_command(cmd, args="")
-         cmd = cmd.strip.to_sym
-         if @@registered.key?(cmd)
-            @@registered[cmd].run(args.strip)
-         else
-            Out::error("no such command: /#{cmd}", false)
-         end
       end
 
       def self.define(name, &block)
          c = new
          c.instance_eval(&block)
-         @@registered[name.to_sym] = c
-      end
-
-      def self.completer(line)
-         cmd = line[1..-1].split(" ", 2)[0]
-         if cmd
-            cmd = cmd.strip
-            if !cmd.empty? && @@registered.key?(cmd.to_sym)
-               (@@registered[cmd.to_sym].completer(line) || []).map { |s| "/#{cmd} #{s}" }
-            else
-               matches = @@registered.keys.select { |k| k.to_s.match(/^#{Regexp.escape(cmd)}/) }
-               matches.length == 1 && "/#{matches[0]}" || matches.map { |k| "/#{k}" }
-            end
-         else
-            @@registered.keys.map { |k| "/#{k}" }
-         end
+         Commands::register(name.to_sym, c)
       end
 
       def completer(s)
@@ -90,19 +60,59 @@ module Commands
       def run(args)
       end
 
-      def error(msg)
-         puts "comela: #{msg}"
-      end
-
       extend CommandMixin
       define_meta :usage, :description
    end
 
+   module_function
+
+   def init
+      files = Dir["#{File.dirname(File.expand_path(__FILE__))}/commands/*.rb"] + \
+              Dir["#{Config.commands_dir}/**/*.rb"]
+
+      files.each { |f| load f }
+   end
+
+   def register(name, cmd)
+      @registered[name] = cmd
+   end
+
+   def get(name)
+      @registered[name.to_sym]
+   end
+
+   def registered?(name)
+      @registered.key?(name.to_sym)
+   end
+
+   def run(cmd, args="")
+      cmd = cmd.strip.to_sym
+      if @registered.key?(cmd)
+         begin
+            @registered[cmd].run(args.strip)
+         rescue CommandError => e
+            Out::error("#{cmd}: #{e}", false)
+         end
+      else
+         Out::error("no such command: /#{cmd}", false)
+      end
+   end
+
+   def completer(line)
+      cmd = line[1..-1].split(" ", 2)[0]
+      if cmd
+         cmd = cmd.strip
+         if !cmd.empty? && @registered.key?(cmd.to_sym)
+            (@registered[cmd.to_sym].completer(line) || []).map { |s| "/#{cmd} #{s}" }
+         else
+            matches = @registered.keys.select { |k| k.to_s.match(/^#{Regexp.escape(cmd)}/) }
+            matches.length == 1 && "/#{matches[0]}" || matches.map { |k| "/#{k}" }
+         end
+      else
+         @registered.keys.map { |k| "/#{k}" }
+      end
    end
 end
 
-if __FILE__ == $0
-   Lijab::Command.load_commands
-   Lijab::Command.registered.each_value { |cmd| cmd.run(:a, :b, :c) }
 end
 

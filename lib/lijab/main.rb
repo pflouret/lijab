@@ -40,11 +40,11 @@ module Main
       args = parse_args()
       Jabber::debug = args[:debug]
 
-      Config.init(args)
+      Config::init(args)
       @connected = false
 
-      Commands::Command.load_commands
-      InputHandler.init
+      Commands::init
+      InputHandler::init
 
       begin
          setup_client()

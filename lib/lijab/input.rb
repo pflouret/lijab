@@ -92,7 +92,7 @@ module InputHandler
       end
 
       if text[0] == ?/
-         Commands::Command.run_command(*text[1..-1].split(" ", 2))
+         Commands::run(*text[1..-1].split(" ", 2))
       else
          to, msg = text.split(":", 2).map { |p| p.strip }
          return unless to && msg && !msg.empty? && Main.contacts.key?(to)
@@ -105,7 +105,7 @@ module InputHandler
    def completer(line)
       return if !Main.connected
       if line[0] == ?/
-         Commands::Command.completer(line)
+         Commands::completer(line)
       else
          Main.contacts.completer(line)
       end

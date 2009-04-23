@@ -14,19 +14,19 @@ module Commands
                "/help help" is a good place to start
             }.gsub!(/^\s*/, '')
          else
-            cmd = Command.registered[args.to_sym]
+            cmd = Commands::get(args)
             if cmd
                puts "usage: #{cmd.usage}\n\n#{cmd.description}"
             else
-               puts %(No such command "#{args}")
+               raise CommandError, %(No such command "#{args}")
             end
          end
       end
 
       def completer(line)
          cmd = line.split[1] || ""
-         if cmd.empty? || !Command.registered.key?(cmd.to_sym)
-            Command.completer("/#{cmd}").map { |c| c[1..-1] }
+         if cmd.empty? || !Commands::registered?(cmd)
+            Commands::completer("/#{cmd}").map { |c| c[1..-1] }
          end
       end
    end
