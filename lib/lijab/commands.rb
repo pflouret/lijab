@@ -77,6 +77,30 @@ module Commands
       @registered[name] = cmd
    end
 
+   def register_alias(name, s)
+      alias_cmd, alias_args = s.split(" ", 2)
+      alias_cmd.strip!
+      alias_cmd = alias_cmd[1..-1] if alias_cmd[0] == ?/
+
+      Command.define name.to_sym do
+         description %{Alias for "#{s}"}
+         @alias_cmd = alias_cmd
+         @alias_args = alias_args
+         @name = name
+
+         def run(args)
+            Commands::run(@alias_cmd, [@alias_args, args].join(" "))
+         end
+
+         def completer(line)
+            args = line.split(" ", 2)[1]
+            Commands::completer("/#{@alias_cmd} #{@alias_args} #{args}").map do |r|
+               r.gsub(/\/#{@alias_cmd}\s?/, "")
+            end
+         end
+      end
+   end
+
    def get(name)
       @registered[name.to_sym]
    end
