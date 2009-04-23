@@ -16,7 +16,11 @@ module Commands
          else
             cmd = Commands::get(args)
             if cmd
-               puts "usage: #{cmd.usage}\n\n#{cmd.description}"
+               s = "usage: #{cmd.usage}\n\n" if cmd.usage
+               s = "#{s}#{cmd.description}"
+               # FIXME: make Out::normal or something, could use Out::inline(s, false)
+               # but it feels wrong
+               puts s
             else
                raise CommandError, %(No such command "#{args}")
             end
