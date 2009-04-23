@@ -42,6 +42,7 @@ module Contacts
       def initialize(simple_name, roster_item)
          @simple_name = simple_name
          @roster_item = roster_item
+         @resource_jid = @roster_item.jid
          @history = HistoryHandler::get(jid())
       end
 
@@ -58,6 +59,8 @@ module Contacts
 
       def handle_message(msg)
          @thread = msg.thread
+
+         @resource_jid = msg.from
 
          if msg.body && !msg.body.empty?
             Out::message(@simple_name, msg.body, color())
@@ -88,9 +91,9 @@ module Contacts
             # TODO: send to specific jid when applicable
             # TODO: send chat_state only in the first message
             Out::outgoing(@simple_name, msg, color())
-            message = Jabber::Message.new(jid(), msg).set_type(:chat) \
-                                                     .set_chat_state(:active) \
-                                                     .set_thread(@thread)
+            message = Jabber::Message.new(@resource_jid, msg).set_type(:chat) \
+                                                             .set_chat_state(:active) \
+                                                             .set_thread(@thread)
 
             @chat_state_timer.kill if @chat_state_timer && @chat_state_timer.alive?
             Main.client.send(message)
@@ -119,7 +122,7 @@ module Contacts
       end
 
       def presence_changed(old_p, new_p)
-         # TODO
+         @resource_jid = @roster_item.jid if old_p && old_p.from == @resource_jid
       end
 
       def jid
