@@ -50,7 +50,7 @@ module Commands
 
       def completer(line)
          contact = line.split[1] || ""
-         Main.contacts.completer(contact, false)if contact.empty? || !Main.contacts.key?(contact)
+         Main.contacts.completer(contact, false) if contact.empty? || !Main.contacts.key?(contact)
       end
    end
 
