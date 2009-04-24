@@ -7,6 +7,16 @@ end
 module Lijab
 
 module HistoryHandler
+   class DummyHistory
+      def log(*a)
+      end
+
+      def last(*a)
+         puts "warning: logs are disabled"
+         []
+      end
+   end
+
    class History
       MEMORY_LOG_LENGTH = 50
 
@@ -76,22 +86,35 @@ module HistoryHandler
 
    def get(jid)
       name = jid.strip.to_s
-      @histories[name] ||= History.new(File.join(Config.account_logdir, "#{name}.log"), name, true)
+      if Config.account["log"]
+         path = File.join(Config.account_logdir, "#{name}.log")
+         @histories[name] ||= History.new(path, name, true)
+      else
+         @dummy ||= DummyHistory.new
+      end
    end
 
    def log(msg, direction, target)
+      return unless Config.account["log"]
+
       init_session_log() unless @session
       @session.log(msg, direction, target)
    end
 
    def last(n)
+      unless Config.account["log"]
+         puts "warning: logs are disabled"
+         return []
+      end
+
       init_session_log() unless @session
       @session.last(n)
    end
 
    def init_session_log
-      path = File.join(Config.account_logdir, "session.log")
-      @session = History.new(path)
+      return unless Config.account["log"]
+
+      @session = History.new(path = File.join(Config.account_logdir, "session.log"))
    end
 end
 
