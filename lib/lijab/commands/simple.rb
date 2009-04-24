@@ -28,10 +28,10 @@ module Commands
       end
 
       def completer(line)
-         cmd = line.split[1] || ""
-         if cmd.empty? || !Commands::registered?(cmd)
-            Commands::completer("/#{cmd}").map { |c| c[1..-1] }
-         end
+         help_cmd, rest = line.split(" ", 2)
+         rest = "/#{rest}"
+
+         Commands::completer(rest).map { |c| c[1..-1] } if rest.split(" ", 2).length == 1
       end
    end
 

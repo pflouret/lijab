@@ -123,19 +123,20 @@ module Commands
    end
 
    def completer(line)
-      cmd = line[1..-1].split(" ", 2)[0]
-      if cmd
-         cmd = cmd.strip
-         if !cmd.empty? && @registered.key?(cmd.to_sym)
-            (@registered[cmd.to_sym].completer(line) || []).map { |s| "/#{cmd} #{s}" }
-         else
-            matches = @registered.keys.select { |k| k.to_s.match(/^#{Regexp.escape(cmd)}/) }
-            matches.length == 1 && "/#{matches[0]}" || matches.map { |k| "/#{k}" }
-         end
+      cmd, args = line[1..-1].split(" ", 2).map { |p| p.strip }
+      cmd ||= ""
+
+      matches = @registered.keys.find_all { |c| c.to_s.match(/^#{Regexp.escape(cmd)}/) }
+
+      if !cmd.empty? && (matches.length == 1 || args) && registered?(cmd)
+         (@registered[cmd.to_sym].completer(line) || []).map { |s| "/#{cmd} #{s}" }
       else
-         @registered.keys.map { |k| "/#{k}" }
+         matches.map { |k| "/#{k}" }
       end
    end
+
+   attr_reader :registered
+   module_function :registered
 end
 
 end
