@@ -18,6 +18,7 @@ module InputHandler
             Readline::redisplay
          end
       end
+      read_typed_history()
 
       init_char_input_stuff()
 
@@ -112,6 +113,16 @@ module InputHandler
       end
    end
 
+   def save_typed_history
+      File.open(Config.files[:typed], 'w') do |f|
+         f.puts(Readline::HISTORY.to_a[-300..-1] || Readline::HISTORY.to_a)
+      end
+   end
+
+   def read_typed_history
+      path = Config.files[:typed]
+      File.read(path).each { |l| Readline::HISTORY.push(l.chomp) } if File.file?(path)
+   end
 end
 
 end

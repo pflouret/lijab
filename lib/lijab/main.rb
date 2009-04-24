@@ -169,6 +169,7 @@ module Main
          @client.close
       rescue
       end
+      InputHandler::save_typed_history
       puts "\nexiting..."
       exit 0
    end

@@ -41,6 +41,7 @@ module Config
             File.open(path, 'w') { |fd| fd.puts(DEFAULT_FILES[f]) }
          end
       end
+      @files[:typed] = File.join(@dirs[:logs], "typed_history")
    end
 
    def read_accounts(account)
