@@ -13,10 +13,10 @@ module Out
    module_function
    @monitor = Monitor.new
 
-   def inline(s, redisplay_line=true, newline=true)
+   def inline(s, redisplay_line=true)
       Out::clear_infoline if redisplay_line
 
-      print %{#{ANSI.clearline}#{s}#{"\n" if newline}}
+      print %{#{ANSI.clearline}#{s}\n}
 
       if redisplay_line
          make_infoline()
@@ -25,24 +25,27 @@ module Out
       STDOUT.flush
    end
 
-   def message(from, text, color=:clear, print_inline=true)
+   def message(from, text, color=:clear, print_inline=true, time=:now)
       @monitor.synchronize do
-         inline("#{from} -> ".send(color).bold + "#{text}\a", print_inline)
+         time = ftime(time) unless time.kind_of?(String)
+         inline("#{time}#{from} -> ".send(color).bold + "#{text}\a", print_inline)
       end
    end
 
-   def presence(from, presence, color=:clear)
+   def presence(from, presence, color=:clear, time=:now)
       @monitor.synchronize do
-         s = "** #{from} (#{presence.priority || 0}) is now ".send(color)
+         time = ftime(time) unless time.kind_of?(String)
+         s = "** #{time}#{from} (#{presence.priority || 0}) is now ".send(color)
          s += presence.pretty(true)
          inline(s)
       end
    end
 
-   def outgoing(to, text, color=:clear, print_inline=true)
+   def outgoing(to, text, color=:clear, print_inline=true, time=:now)
       @monitor.synchronize do
          print "#{ANSIMove.up(1)}" if print_inline
-         inline("#{to} <- ".send(color) + "#{text}", print_inline)
+         time = ftime(time) unless time.kind_of?(String)
+         inline("#{time}#{to} <- ".send(color) + "#{text}", print_inline)
       end
    end
 
@@ -51,7 +54,11 @@ module Out
          contact = Main.contacts[Jabber::JID.new(e[:target])]
          target_s = contact ? contact.simple_name : e[:target]
          m = method(e[:direction] == :from ? :message : :outgoing)
-         m.call(target_s, e[:msg], contact ? contact.color : :clear, false)
+         m.call(target_s,
+                e[:msg],
+                contact ? contact.color : :clear,
+                false,
+                ftime(e[:time].localtime, :history_datetime_format))
       end
    end
 
@@ -81,6 +88,13 @@ module Out
          print "\n\r#{ANSI.cleartoeol}#{ANSIMove.up(1)}"
          STDOUT.flush
       end
+   end
+
+   def ftime(time=nil, format=:datetime_format)
+      return "" unless time
+      time = Time.now if time == :now
+
+      "#{time.strftime(Config.opts[format])} "
    end
 end
 

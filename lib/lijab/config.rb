@@ -106,7 +106,10 @@ module Config
 
       "config" => %Q{
          # default config file
-         :datetime_format : %H:%M:%S          # time format for each message
+
+         # time formatting (leave empty to not show timestamps)
+         :datetime_format : %H:%M:%S                   # normal messages
+         :history_datetime_format : %Y-%b-%d %H:%M:%S  # history messages
 
          # Command aliases.
          # <command_alias> : <existing_command>
