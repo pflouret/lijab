@@ -74,9 +74,10 @@ module InputHandler
 
          if !t
             puts ; next
-         elsif t.empty?
+         elsif t =~ /^\s*$/
             Readline::HISTORY.pop
          else
+            Readline::HISTORY.pop if Readline::HISTORY.to_a[-2] == t
             process_input(t)
          end
       end
