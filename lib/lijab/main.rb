@@ -78,19 +78,19 @@ module Main
 
          Out::inline("connecting...", true)
 
-         @client.connect(Config.account["server"], Config.account["port"])
+         @client.connect(Config.account[:server], Config.account[:port])
 
          loop do
             begin
-               if !Config.account["password"]
-                  print "#{Config.account["name"]} account password: "
+               if !Config.account[:password]
+                  print "#{Config.account[:name]} account password: "
                   system("stty -echo") # FIXME
-                  Config.account["password"] = gets[0..-2]
+                  Config.account[:password] = gets[0..-2]
                   system("stty echo")
                   puts
                end
 
-               @client.auth(Config.account["password"])
+               @client.auth(Config.account[:password])
                break
             rescue Jabber::ClientAuthenticationFailure
                Out::error("couldn't authenticate: wrong password?")

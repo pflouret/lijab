@@ -86,7 +86,7 @@ module HistoryHandler
 
    def get(jid)
       name = jid.strip.to_s
-      if Config.account["log"]
+      if Config.account[:log]
          path = File.join(Config.account_logdir, "#{name}.log")
          @histories[name] ||= History.new(path, name, true)
       else
@@ -95,14 +95,14 @@ module HistoryHandler
    end
 
    def log(msg, direction, target)
-      return unless Config.account["log"]
+      return unless Config.account[:log]
 
       init_session_log() unless @session
       @session.log(msg, direction, target)
    end
 
    def last(n)
-      unless Config.account["log"]
+      unless Config.account[:log]
          puts "warning: logs are disabled"
          return []
       end
@@ -112,7 +112,7 @@ module HistoryHandler
    end
 
    def init_session_log
-      return unless Config.account["log"]
+      return unless Config.account[:log]
 
       @session = History.new(path = File.join(Config.account_logdir, "session.log"))
    end

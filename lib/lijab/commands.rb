@@ -68,7 +68,7 @@ module Commands
 
    def init
       files = Dir["#{File.dirname(File.expand_path(__FILE__))}/commands/*.rb"] + \
-              Dir["#{Config.commands_dir}/**/*.rb"]
+              Dir["#{Config.dirs[:commands]}/**/*.rb"]
 
       files.each { |f| load f }
    end
