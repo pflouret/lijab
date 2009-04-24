@@ -23,6 +23,7 @@ module Lijab
 
 module Commands
    @registered = {}
+   @overloaded = {}
 
    module CommandMixin
       def define_meta(*names)
@@ -71,9 +72,14 @@ module Commands
               Dir["#{Config.dirs[:commands]}/**/*.rb"]
 
       files.each { |f| load f }
+      Config.opts[:aliases].each do |a, c|
+         register_alias(a, c)
+      end
    end
 
    def register(name, cmd)
+      name = name.to_sym
+      @overloaded[name] = @registered[name] if @registered.key?(name)
       @registered[name] = cmd
    end
 
@@ -81,6 +87,7 @@ module Commands
       alias_cmd, alias_args = s.split(" ", 2)
       alias_cmd.strip!
       alias_cmd = alias_cmd[1..-1] if alias_cmd[0] == ?/
+      name = name[1..-1] if name[0] == ?/
 
       Command.define name.to_sym do
          description %{Alias for "#{s}"}
@@ -89,7 +96,7 @@ module Commands
          @name = name
 
          def run(args)
-            Commands::run(@alias_cmd, [@alias_args, args].join(" "))
+            Commands::run(@alias_cmd, [@alias_args, args].join(" "), true)
          end
 
          def completer(line)
@@ -109,11 +116,13 @@ module Commands
       @registered.key?(name.to_sym)
    end
 
-   def run(cmd, args="")
+   def run(cmd, args="", is_alias=false)
       cmd = cmd.strip.to_sym
-      if @registered.key?(cmd)
+      command = @overloaded[cmd] if is_alias
+      command ||= @registered[cmd]
+      if command
          begin
-            @registered[cmd].run(args.strip)
+            command.run(args.strip)
          rescue CommandError => e
             Out::error("#{cmd}: #{e}", false)
          end
