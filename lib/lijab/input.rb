@@ -31,7 +31,7 @@ module InputHandler
       @on_char_input_blocks = []
 
       @on_char_input_blocks << lambda do |c|
-         to, msg = Readline::line_buffer.split(":", 2).map { |p| p.strip }
+         to, msg = Readline::line_buffer.split(":", 2).strip
          if to && msg && Main.contacts.key?(to)
             Main.contacts[to].typed_stuff
          end
@@ -61,7 +61,7 @@ module InputHandler
    #      next unless buf != @last_line
 
    #      @last_line = buf
-   #      to, msg = buf.split(":", 2).map { |p| p.strip }
+   #      to, msg = buf.split(":", 2).strip
 
    #      next unless to && msg && Main.contacts.key?(to)
    #   end
@@ -96,7 +96,7 @@ module InputHandler
       if text[0] == ?/
          Commands::run(*text[1..-1].split(" ", 2))
       else
-         to, msg = text.split(":", 2).map { |p| p.strip }
+         to, msg = text.split(":", 2).strip
          return unless to && msg && !msg.empty? && Main.contacts.key?(to)
 
          @last_to = to

@@ -28,6 +28,12 @@ class String
    end
 end
 
+class Array
+   def strip
+      self.map { |s| s.strip }
+   end
+end
+
 Thread.abort_on_exception = true
 
 module Lijab

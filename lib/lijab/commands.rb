@@ -112,7 +112,7 @@ module Commands
    end
 
    def completer(line)
-      cmd, args = line[1..-1].split(" ", 2).map { |p| p.strip }
+      cmd, args = line[1..-1].split(" ", 2).strip
       cmd ||= ""
 
       matches = @registered.keys.find_all { |c| c.to_s.match(/^#{Regexp.escape(cmd)}/) }

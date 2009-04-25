@@ -40,7 +40,7 @@ module Commands
       description "Show the message history with a <contact>, or all the contacts."
 
       def run(args)
-         contact, limit = args.split(" ", 2).map { |p| p.strip }
+         contact, limit = args.split(" ", 2).strip
          limit ||= 10
 
          if contact
@@ -76,7 +76,7 @@ module Commands
       STATUSES = ["available", "away", "chat", "xa", "dnd", "invisible"]
 
       def run(args)
-         status, message = args.split(" ", 2).map { |p| p.strip }
+         status, message = args.split(" ", 2).strip
 
          return Main.clear_status_message unless status
 
