@@ -181,13 +181,18 @@ module Contacts
 
       def [](k)
          return @short[k] if @short.key?(k)
-         if k.respond_to?(:strip)
-            super(k) || super(k.strip)
-         end
+
+         k = Jabber::JID.new(k) unless k.is_a?(Jabber::JID)
+
+         super(k) || super(k.strip)
       end
 
       def key?(k)
-         @short.key?(k) || (k.respond_to?(:strip) && (super(k) || super(k.strip)))
+         return true if @short.key?(k)
+
+         k = Jabber::JID.new(k) unless k.is_a?(Jabber::JID)
+
+         super(k) || super(k.strip)
       end
 
       def completer(line, end_with_colon=true)
