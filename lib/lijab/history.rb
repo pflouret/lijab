@@ -68,7 +68,7 @@ module HistoryHandler
                ret << {:time => Time.parse(time).localtime,
                        :target => target,
                        :direction => direction == "<-" ? :from : :to,
-                       :msg => msg.unpack("M").first.strip}
+                       :msg => msg.strip.unpack("M").first}
             end
             ret += @m
             if @m.length < MEMORY_LOG_LENGTH
