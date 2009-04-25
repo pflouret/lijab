@@ -1,17 +1,17 @@
 require 'lijab/term/ansi'
+require 'monitor'
 require 'readline'
 require 'readline/extra'
-require 'monitor'
 
 include Term
 
 module Lijab
 
 module Out
-   PROMPT = "> "
+
+   @monitor = Monitor.new
 
    module_function
-   @monitor = Monitor.new
 
    def inline(s, redisplay_line=true)
       Out::clear_infoline if redisplay_line
@@ -20,7 +20,7 @@ module Out
 
       if redisplay_line
          make_infoline()
-         print "#{PROMPT}#{Readline::line_buffer}"
+         print "#{InputHandler::prompt}#{Readline::line_buffer}"
       end
       STDOUT.flush
    end

@@ -4,9 +4,15 @@ require 'readline/extra'
 module Lijab
 
 module InputHandler
-   module_function
 
+   DEFAULT_PROMPT = "> "
+
+   @prompt = DEFAULT_PROMPT
    @last_to = ""
+   @multiline = false
+   @multilines = []
+
+   module_function
 
    def init
       Readline::completer_word_break_characters = ""
@@ -23,6 +29,15 @@ module InputHandler
       init_char_input_stuff()
 
       @input_thread = Thread.new { read_input() }
+   end
+
+   def prompt(p=nil)
+      return @prompt unless p
+      @prompt = p
+   end
+
+   def reset_prompt
+      @prompt = DEFAULT_PROMPT
    end
 
    def init_char_input_stuff
@@ -71,15 +86,25 @@ module InputHandler
       loop do
          Out::make_infoline
 
-         t = Readline::readline(Out::PROMPT, true)
+         t = Readline::readline(@prompt, true)
 
          if !t
-            puts ; next
-         elsif t =~ /^\s*$/
+            if @multiline
+               process_input(@multilines.join("\n"))
+               multiline(false)
+            else
+               puts ; next
+            end
+         elsif !@multiline && t =~ /^\s*$/
             Readline::HISTORY.pop
          else
             Readline::HISTORY.pop if Readline::HISTORY.to_a[-2] == t
-            process_input(t)
+
+            if @multiline
+               @multilines.push(t)
+            else
+               process_input(t)
+            end
          end
       end
    end
@@ -97,7 +122,7 @@ module InputHandler
          Commands::run(*text[1..-1].split(" ", 2))
          @last_to = ""
       else
-         to, msg = text.split(":", 2).strip
+         to, msg = text.split(":", 2)
          return unless to && msg && !msg.empty? && Main.contacts.key?(to)
 
          @last_to = to
@@ -123,6 +148,21 @@ module InputHandler
    def read_typed_history
       path = Config.files[:typed]
       File.read(path).each { |l| Readline::HISTORY.push(l.chomp) } if File.file?(path)
+   end
+
+   def multiline?
+      @multiline
+   end
+
+   def multiline(enable, first_line="")
+      @multiline = enable
+      @multilines = []
+      if enable
+         @multilines.push(first_line) unless first_line.empty?
+         prompt("---> ")
+      else
+         reset_prompt()
+      end
    end
 end
 

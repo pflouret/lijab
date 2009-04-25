@@ -58,6 +58,23 @@ module Commands
       end
    end
 
+   Command.define :multiline do
+      usage "/multiline <contact> [<first_line>]"
+      description "Enter multiline mode, meaning, send a multiline message to a contact.\n" \
+                  "Ctrl-d in an empty line exits multiline mode and sends the message."
+
+      def run(args)
+         contact, first_line = args.split(" ", 2).strip
+         first_line = "#{contact}: #{first_line}"
+         InputHandler::multiline(true, first_line)
+      end
+
+      def completer(line)
+         contact = line.split[1] || ""
+         Main.contacts.completer(contact, false) if contact.empty? || !Main.contacts.key?(contact)
+      end
+   end
+
    Command.define :quit do
       usage "/quit"
       description "Quit lijab"
