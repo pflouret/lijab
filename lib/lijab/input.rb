@@ -124,6 +124,7 @@ module InputHandler
       else
          to, msg = text.split(":", 2)
          return unless to && msg && !msg.empty? && Main.contacts.key?(to)
+         msg = msg[1..-1] if msg[0].chr == " " # goddammit, whitespace will be the death of me
 
          @last_to = to
          Main.contacts[to].send_message(msg)

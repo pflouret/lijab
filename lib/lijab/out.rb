@@ -25,10 +25,34 @@ module Out
       STDOUT.flush
    end
 
+   # TODO: ugh, clean this shit up
+   def conversation(prefix, text, colors=[], print_inline=true, move_up=false)
+         n_lines = text.count($/) + 1
+         lines = text.lines.to_a
+         return unless lines[0]
+
+         print "#{ANSIMove.up(n_lines)}" if print_inline && move_up
+
+         inline(prefix.colored(*colors) + "#{lines.shift.chomp}", print_inline)
+
+         prefix = " " * prefix.length
+
+         lines.each do |l|
+            inline(prefix + "#{l.chomp}", print_inline)
+         end
+   end
+
    def message(from, text, color=:clear, print_inline=true, time=:now)
       @monitor.synchronize do
          time = ftime(time) unless time.kind_of?(String)
-         inline("#{time}#{from} -> ".send(color).bold + "#{text}\a", print_inline)
+         conversation("#{time}#{from} -> ", text+"\a", [color, :bold], print_inline)
+      end
+   end
+
+   def outgoing(to, text, color=:clear, print_inline=true, time=:now)
+      @monitor.synchronize do
+         time = ftime(time) unless time.kind_of?(String)
+         conversation("#{time}#{to} <- ", text, [color], print_inline, true)
       end
    end
 
@@ -38,14 +62,6 @@ module Out
          s = "** #{time}#{from} (#{presence.priority || 0}) is now ".send(color)
          s += presence.pretty(true)
          inline(s)
-      end
-   end
-
-   def outgoing(to, text, color=:clear, print_inline=true, time=:now)
-      @monitor.synchronize do
-         print "#{ANSIMove.up(1)}" if print_inline
-         time = ftime(time) unless time.kind_of?(String)
-         inline("#{time}#{to} <- ".send(color) + "#{text}", print_inline)
       end
    end
 
