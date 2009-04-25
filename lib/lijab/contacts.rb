@@ -156,6 +156,7 @@ module Contacts
       def initialize(roster)
          super()
          @roster = roster
+         @roster.add(Config.jid) # add self-contact
          @roster.add_presence_callback(&method(:handle_presence))
          @roster.wait_for_roster
 

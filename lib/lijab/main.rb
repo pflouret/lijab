@@ -111,7 +111,8 @@ module Main
          end
 
          @contacts = Contacts::Contacts.new(Jabber::Roster::Helper.new(@client))
-         @client.send(Jabber::Presence.new.set_type(:available).set_priority(51))
+         @presence = Jabber::Presence.new.set_type(:available).set_priority(51)
+         @client.send(@presence)
          @connected = true
 
          setup_after_connect()
@@ -144,13 +145,10 @@ module Main
    def set_status(status, msg=nil)
       type = status == :invisible ? :unavailable : nil
       status = nil if [:available, :invisible].include?(status)
-      @status = status
 
-      p = Jabber::Presence.new.set_type(type) \
-                              .set_show(status) \
-                              .set_status(msg) \
-                              .set_priority(51)
-      @client.send(p)
+      @presence.set_type(type).set_show(status).set_status(msg)
+
+      @client.send(@presence)
    end
 
    def clear_status_message
