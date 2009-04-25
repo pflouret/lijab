@@ -4,8 +4,6 @@ require 'rake'
 require 'rake/clean'
 require 'rake/gempackagetask'
 
-require './lib/lijab/version.rb'
-
 spec = Gem::Specification.new do |s|
 
    s.name = 'lijab'
@@ -57,13 +55,14 @@ end
 desc "Generate git aware version file"
 task :versiondev do
    if File.directory?('.git')
-      commit = `git log --pretty=format:%h`
+      commit = `git log -1 --pretty=format:%h`.chomp
       branch = `git branch`.split("\n").grep(/^\*/).first
-      branch = (branch[2..-1] if branch && !branch.empty? && branch != "* master") || nil
+      branch.chomp! if branch
+      branch = (branch if branch && !branch.empty? && branch != "* master") || nil
       additional = "#{'-'+branch if branch}#{'-'+commit if commit}"
       additional = "-git-#{Date.today.strftime('%Y%m%d')}#{additional}" if additional
    end
-   write_version_file(spec.version.to_s + additional)
+   write_version_file("#{spec.version.to_s}#{additional}")
 end
 
 desc "Create .gemspec file"
@@ -76,10 +75,22 @@ end
 
 desc "Prepare for release"
 task :release => [:clean, :version, :gemspec, :repackage] do
+   require './lib/lijab/version.rb'
    if spec.version.to_s == Lijab::VERSION
       STDERR.puts "you forgot to bump the version!"
       exit(1)
    end
+end
+
+desc "Install the gem locally"
+task :install => [:clean, :versiondev, :repackage] do
+   system("sudo gem install pkg/lijab-#{spec.version}.gem")
+end
+
+desc "Reinstall the gem"
+task :reinstall => [:clean, :versiondev, :repackage] do
+   system("sudo gem uninstall lijab")
+   Rake::Task[:install].invoke
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
