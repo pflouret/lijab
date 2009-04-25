@@ -156,7 +156,12 @@ module Contacts
       def initialize(roster)
          super()
          @roster = roster
-         @roster.add(Config.jid) # add self-contact
+
+         # why does everything always has to be so hackish?
+         self_ri = Jabber::Roster::Helper::RosterItem.new(Main.client)
+         self_ri.jid = Config.jid.strip
+         @roster.items[self_ri.jid] = self_ri
+
          @roster.add_presence_callback(&method(:handle_presence))
          @roster.wait_for_roster
 
