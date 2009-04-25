@@ -48,8 +48,8 @@ module Commands
    module_function
 
    def init
-      files = Dir["#{File.dirname(File.expand_path(__FILE__))}/commands/*.rb"] + \
-              Dir["#{Config.dirs[:commands]}/**/*.rb"]
+      files = Dir[File.join(File.dirname(File.expand_path(__FILE__)), 'commands', '*.rb')] + \
+              Dir[File.join(Config.dirs[:commands], '**', '*.rb')]
 
       files.each { |f| load f }
       Config.opts[:aliases].each do |a, c|
