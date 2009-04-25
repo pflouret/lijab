@@ -48,6 +48,8 @@ module Main
       Jabber::debug = args[:debug]
 
       Config::init(args)
+      read_saved_session()
+
       @connected = false
 
       begin
@@ -111,7 +113,6 @@ module Main
          end
 
          @contacts = Contacts::Contacts.new(Jabber::Roster::Helper.new(@client))
-         @presence = Jabber::Presence.new.set_type(:available).set_priority(51)
          @client.send(@presence)
          @connected = true
 
@@ -183,12 +184,40 @@ module Main
       options
    end
 
+   def save_session
+      return unless @presence
+
+      o = {:status => {:type => @presence.type,
+                       :show => @presence.show,
+                       :status => @presence.status,
+                       :priority => @presence.priority}}
+      File.open(File.join(Config.account[:dir], "session_data.yml"), 'w') do |f|
+         f.puts(YAML.dump(o))
+      end
+   end
+
+   def read_saved_session
+      path = File.join(Config.account[:dir], "session_data.yml")
+
+      if File.file?(path)
+         o = YAML.load_file(path)
+      else
+         o = {:status => {:type => :available, :priority => 51}}
+      end
+
+      @presence = Jabber::Presence.new.set_type(o[:status][:type]) \
+                                      .set_show(o[:status][:show]) \
+                                      .set_status(o[:status][:status]) \
+                                      .set_priority(o[:status][:priority])
+   end
+
    def quit
       begin
          @client.close if @connected
       rescue
       end
       InputHandler::save_typed_history
+      save_session()
       puts "\nexiting..."
       exit 0
    end
