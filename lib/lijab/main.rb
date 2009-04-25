@@ -44,15 +44,15 @@ module Main
       Config::init(args)
       @connected = false
 
-      Commands::init
-      InputHandler::init
-
       begin
          setup_client()
       rescue SystemCallError
          Out::error("couldn't connect")
          reconnect()
       end
+
+      Commands::init
+      InputHandler::init
    end
 
    def setup_after_connect
@@ -82,7 +82,7 @@ module Main
             Main.contacts[msg.from].handle_message(msg) if Main.contacts.key?(msg.from)
          end
 
-         Out::inline("connecting...", true)
+         Out::inline("connecting...", false)
 
          @client.connect(Config.account[:server], Config.account[:port])
 
@@ -91,7 +91,7 @@ module Main
                if !Config.account[:password]
                   print "#{Config.account[:name]} account password: "
                   system("stty -echo") # FIXME
-                  Config.account[:password] = gets[0..-2]
+                  Config.account[:password] = gets.chomp
                   system("stty echo")
                   puts
                end
@@ -99,7 +99,8 @@ module Main
                @client.auth(Config.account[:password])
                break
             rescue Jabber::ClientAuthenticationFailure
-               Out::error("couldn't authenticate: wrong password?")
+               Out::error("couldn't authenticate: wrong password?", false)
+               Config.account[:password] = nil
             end
          end
 
@@ -176,7 +177,7 @@ module Main
 
    def quit
       begin
-         @client.close
+         @client.close if @connected
       rescue
       end
       InputHandler::save_typed_history
