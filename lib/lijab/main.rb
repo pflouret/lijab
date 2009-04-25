@@ -155,6 +155,10 @@ module Main
       set_status(@status)
    end
 
+   def set_priority(priority)
+      @client.send(@presence.set_priority(priority))
+   end
+
    def parse_args
       options = {:debug => false}
       begin
@@ -189,8 +193,8 @@ module Main
       exit 0
    end
 
-   attr_reader :contacts, :client, :connected
-   module_function :contacts, :client, :connected
+   attr_reader :contacts, :client, :connected, :presence
+   module_function :contacts, :client, :connected, :presence
 end
 end
 
