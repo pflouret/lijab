@@ -109,6 +109,7 @@ module Config
          # time formatting (leave empty to not show timestamps)
          :datetime_format : %H:%M:%S                   # normal messages
          :history_datetime_format : %Y-%b-%d %H:%M:%S  # history messages
+         :show_status_changes : no                     # show changes in contacts' status
 
          # Command aliases.
          # <command_alias> : <existing_command>

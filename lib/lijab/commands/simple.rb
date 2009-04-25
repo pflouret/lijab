@@ -140,6 +140,16 @@ module Commands
       end
    end
 
+   # TODO: make a generic option changer?
+   Command.define :show_status_changes do
+      usage "/show_status_changes yes|no"
+      description "Enable/disable printing the contacts' status changes. Can get quite spammish."
+
+      def run(args)
+         Config.opts[:show_status_changes] = args.split[0].strip == 'yes'
+      end
+   end
+
    module ContactsCommandMixin
       SORTBY = ["status", "alpha"]
 

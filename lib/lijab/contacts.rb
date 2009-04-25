@@ -203,11 +203,13 @@ module Contacts
 
       def handle_presence(roster_item, old_p, new_p)
          contact = self[roster_item.jid]
-         type = new_p.type
-         if type == nil || type == :unavailable && !contact.online?
-            Out::presence(new_p.from.to_s, new_p)
+         if Config.opts[:show_status_changes]
+            type = new_p.type
+            if type == nil || type == :unavailable && !contact.online?
+               Out::presence(new_p.from.to_s, new_p)
+            end
          end
-         contact.presence_changed(old_p, new_p)
+         contact.presence_changed(old_p, new_p) if contact
          # TODO: handle subscriptions
       end
    end
