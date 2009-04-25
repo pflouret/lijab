@@ -95,6 +95,7 @@ module InputHandler
 
       if text[0] == ?/
          Commands::run(*text[1..-1].split(" ", 2))
+         @last_to = ""
       else
          to, msg = text.split(":", 2).strip
          return unless to && msg && !msg.empty? && Main.contacts.key?(to)
