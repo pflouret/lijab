@@ -109,15 +109,20 @@ module Commands
    Command.define :status do
       usage "/status [available|away|chat|xa|dnd|invisible] [<message>]"
       description "Set your status.\n" \
-                  "If no status given, keep the current and set the status message.\n" \
-                  "If no arguments given, keep the current status and clear the status message."
+                  "If no status is given, keep the current and set the status message.\n" \
+                  "If no message is given, keep the current status and clear the message.\n" \
+                  "If no arguments are given, print the current status."
 
       STATUSES = ["available", "away", "chat", "xa", "dnd", "invisible"]
 
       def run(args)
          status, message = args.split(" ", 2).strip
 
-         return Main.clear_status_message unless status
+         unless status
+            p = Main.presence
+            puts "#{Config.jid} (#{p.priority || 0}) #{p.pretty(true)}"
+            return
+         end
 
          unless STATUSES.include?(status)
             message = "#{status} #{message}".strip
