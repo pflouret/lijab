@@ -4,13 +4,16 @@ module Lijab
 module HooksHandler
    module_function
 
+   @on_connect = []
+   @on_disconnect = []
+   @on_incoming_message = []
+   @on_presence = []
+   @on_pre_send_message = []
+   @on_post_send_message = []
+
    def init
-      @on_connect = []
-      @on_disconnect = []
-      @on_incoming_message = []
-      @on_presence = []
-      @on_pre_send_message = []
-      @on_post_send_message = []
+      @on_connect, @on_disconnect, @on_incoming_message, @on_presence = [], [], [], []
+      @on_pre_send_message, @on_post_send_message = [], []
 
       Dir[File.join(Config.dirs[:hooks], '**', '*.rb')].each { |f| load f }
 
