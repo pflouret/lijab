@@ -1,0 +1,5 @@
+ext/Makefile
+tags
+*.log
+*.o
+*.so
