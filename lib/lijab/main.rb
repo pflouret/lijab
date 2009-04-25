@@ -9,6 +9,7 @@ require 'lijab/commands'
 require 'lijab/config'
 require 'lijab/contacts'
 require 'lijab/history'
+require 'lijab/hooks'
 require 'lijab/input'
 require 'lijab/out'
 require 'lijab/version'
@@ -54,6 +55,10 @@ module Main
       end
    end
 
+   def setup_after_connect
+      HooksHandler::init
+   end
+
    def setup_client
       return unless @monitor.try_enter
       begin
@@ -65,6 +70,7 @@ module Main
             case from
             when :disconnected
                Out::error("disconnected")
+               HooksHandler::handle_disconnect
                reconnect()
             else
                # death before lost messages!
@@ -100,6 +106,10 @@ module Main
          @contacts = Contacts::Contacts.new(Jabber::Roster::Helper.new(@client))
          @client.send(Jabber::Presence.new.set_type(:available).set_priority(51))
          @connected = true
+
+         setup_after_connect()
+         HooksHandler::handle_connect
+
          Out::inline("connected!".green, true)
       ensure
          @monitor.exit

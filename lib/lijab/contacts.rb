@@ -86,7 +86,7 @@ module Contacts
       def send_message(msg)
          if msg.kind_of?(Jabber::Message)
             msg.thread = @thread unless msg.thread
-            Main.client.send(msg)
+            message = msg
          elsif msg.kind_of?(String) && !msg.empty?
             # TODO: send to specific jid when applicable
             # TODO: send chat_state only in the first message
@@ -96,9 +96,16 @@ module Contacts
                                                              .set_thread(@thread)
 
             @chat_state_timer.kill if @chat_state_timer && @chat_state_timer.alive?
-            Main.client.send(message)
-            @history.log(msg, :to)
          end
+
+         message = HooksHandler::handle_pre_send_message(self, message)
+         return unless message
+
+         Main.client.send(message)
+
+         HooksHandler::handle_post_send_message(self, message)
+
+         @history.log(message.body, :to)
          @chat_state = :active
       end
 
@@ -144,6 +151,8 @@ module Contacts
    end
 
    class Contacts < Hash
+      attr_reader :roster
+
       def initialize(roster)
          super()
          @roster = roster

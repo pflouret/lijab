@@ -30,7 +30,7 @@ module Config
          puts "Creating #{@basedir} with the default configs"
       end
 
-      %w{commands extensions logs}.each do |d|
+      %w{commands hooks logs}.each do |d|
          @dirs[d.to_sym] = path = File.join(@basedir, d)
          FileUtils.mkdir_p(path)
       end
