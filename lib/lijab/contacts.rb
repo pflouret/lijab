@@ -34,6 +34,7 @@ module Contacts
    class Contact
       attr_accessor :simple_name, :history
       attr_writer :color
+      attr_reader :roster_item
 
       COLORS = [:red, :blue, :yellow, :green, :magenta, :cyan].shuffle!
 

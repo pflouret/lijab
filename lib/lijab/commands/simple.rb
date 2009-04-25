@@ -160,7 +160,16 @@ module Commands
          s = []
          contacts.each do |jid,contact|
             unless online_only && !contact.online?
-               s << "* #{contact.simple_name} #{contact.presence.pretty(true)}"
+               main = contact.presence
+               s << "* #{contact.simple_name} #{main.pretty(true)} " \
+                    "(#{main.priority || 0}) [#{main.from}]"
+               if contact.roster_item.presences.length > 1
+                  contact.roster_item.presences.each do |p|
+                     if p != main
+                        s << "    #{p.from} #{p.pretty(true)} (#{p.priority || 0})"
+                     end
+                  end
+               end
             end
          end
 
