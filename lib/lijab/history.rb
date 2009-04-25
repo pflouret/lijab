@@ -87,7 +87,7 @@ module HistoryHandler
    def get(jid)
       name = jid.strip.to_s
       if Config.account[:log]
-         path = File.join(Config.account_logdir, "#{name}.log")
+         path = File.join(Config.account[:log_dir], "#{name}.log")
          @histories[name] ||= History.new(path, name, true)
       else
          @dummy ||= DummyHistory.new
@@ -114,7 +114,7 @@ module HistoryHandler
    def init_session_log
       return unless Config.account[:log]
 
-      @session = History.new(path = File.join(Config.account_logdir, "session.log"))
+      @session = History.new(path = File.join(Config.account[:log_dir], "session.log"))
    end
 end
 

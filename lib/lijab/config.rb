@@ -19,7 +19,7 @@ module Config
       @jid.resource ||= "lijab#{(0...5).map{rand(10).to_s}.join}"
       @account[:server] ||= @jid.domain
 
-      create_account_log_dirs()
+      create_account_dirs()
    end
 
    def setup_basedir(basedir)
@@ -30,7 +30,7 @@ module Config
          puts "Creating #{@basedir} with the default configs"
       end
 
-      %w{commands hooks logs}.each do |d|
+      %w{accounts commands hooks}.each do |d|
          @dirs[d.to_sym] = path = File.join(@basedir, d)
          FileUtils.mkdir_p(path)
       end
@@ -41,7 +41,6 @@ module Config
             File.open(path, 'w') { |fd| fd.puts(DEFAULT_FILES[f]) }
          end
       end
-      @files[:typed] = File.join(@dirs[:logs], "typed_history")
    end
 
    def read_accounts(account)
@@ -76,15 +75,14 @@ module Config
       @opts.merge!(YAML.load_file(@files[:config]))
    end
 
-   def create_account_log_dirs
-      @accounts.select { |a| a[:log] }.each do |a|
-         a[:log_dir] = File.join(@dirs[:logs], @jid.strip.to_s)
-         FileUtils.mkdir_p(a[:log_dir])
-      end
-   end
+   def create_account_dirs
+      @accounts.each do |a|
+         a[:dir] = File.join(@dirs[:accounts], @jid.strip.to_s)
+         a[:log_dir] = File.join(a[:dir], "logs")
+         a[:typed] = File.join(a[:dir], "typed_history")
 
-   def account_logdir
-      @account[:log_dir]
+         [:dir, :log_dir].each { |s| FileUtils.mkdir_p(a[s]) }
+      end
    end
 
    DEFAULT_FILES = {
