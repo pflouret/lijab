@@ -1,6 +1,6 @@
 require 'lijab/term/ansi'
 require 'readline'
-require 'readlinep'
+require 'readline/extra'
 require 'monitor'
 
 include Term

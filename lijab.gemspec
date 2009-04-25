@@ -6,12 +6,12 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Pablo Flouret"]
-  s.date = %q{2009-04-23}
+  s.date = %q{2009-04-25}
   s.default_executable = %q{lijab}
   s.email = %q{quuxbaz@gmail.com}
   s.executables = ["lijab"]
-  s.extensions = ["ext/readlinep/extconf.rb"]
-  s.files = ["ext/readlinep/extconf.rb", "ext/readlinep/readlinep.c", "lib/lijab/commands/simple.rb", "lib/lijab/commands.rb", "lib/lijab/config.rb", "lib/lijab/contacts.rb", "lib/lijab/history.rb", "lib/lijab/input.rb", "lib/lijab/main.rb", "lib/lijab/out.rb", "lib/lijab/term/ansi.rb", "lib/lijab/version.rb", "lib/lijab/xmpp4r/message.rb", "lib/lijab.rb", "bin/lijab"]
+  s.extensions = ["ext/extconf.rb"]
+  s.files = ["ext/extconf.rb", "ext/readline_extra.c", "lib/bleh.rb", "lib/configs/commands/cowsay.rb", "lib/configs/hooks/ting.rb", "lib/lijab/commands/simple.rb", "lib/lijab/commands.rb", "lib/lijab/config.rb", "lib/lijab/contacts.rb", "lib/lijab/history.rb", "lib/lijab/hooks.rb", "lib/lijab/input.rb", "lib/lijab/main.rb", "lib/lijab/out.rb", "lib/lijab/term/ansi.rb", "lib/lijab/version.rb", "lib/lijab/xmpp4r/message.rb", "lib/lijab.rb", "lib/readline/extra.rb", "bin/lijab"]
   s.homepage = %q{http://github.com/palbo/lijab}
   s.require_paths = ["lib"]
   s.required_ruby_version = Gem::Requirement.new(">= 1.8.0")

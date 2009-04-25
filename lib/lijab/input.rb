@@ -1,5 +1,5 @@
 require 'readline'
-require 'readlinep'
+require 'readline/extra'
 
 module Lijab
 

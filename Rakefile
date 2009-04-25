@@ -14,10 +14,10 @@ spec = Gem::Specification.new do |s|
    s.summary = "Extensible line oriented jabber client"
 
    s.executables = ['lijab']
-   s.files = Dir.glob("ext/readlinep/*.{rb,c}") +
+   s.files = Dir.glob("ext/*.{rb,c}") +
              Dir.glob("lib/**/*.rb")
 
-   s.extensions << 'ext/readlinep/extconf.rb'
+   s.extensions << 'ext/extconf.rb'
    s.require_path = 'lib'
 
    s.add_dependency "file-tail"

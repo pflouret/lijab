@@ -1,6 +1,8 @@
 # Loads mkmf which is used to make makefiles for Ruby extensions
 require 'mkmf'
 
+dir_config("readline")
+
 $headers = ["stdio.h", "readline/readline.h"]
 
 exit unless have_library("readline", "readline")
@@ -15,4 +17,4 @@ $headers.each { |h| exit unless have_header(h) }
 %w{"rl_pre_input_hook"
    "rl_getc_function"}.each { |f| exit unless have_var(f, $headers) }
 
-create_makefile("readlinep")
+create_makefile("readline_extra")
