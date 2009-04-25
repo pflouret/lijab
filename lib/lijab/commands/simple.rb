@@ -68,24 +68,24 @@ module Commands
    end
 
    Command.define :status do
-      usage "/status [online|away|chat|xa|dnd|invisible] [<message>]"
+      usage "/status [available|away|chat|xa|dnd|invisible] [<message>]"
       description "Set your status.\n" \
                   "If no status given, keep the current and set the status message.\n" \
                   "If no arguments given, keep the current status and clear the status message."
 
-      STATUSES = ["online", "away", "chat", "xa", "dnd", "invisible"]
+      STATUSES = ["available", "away", "chat", "xa", "dnd", "invisible"]
 
       def run(args)
          status, message = args.split(" ", 2).map { |p| p.strip }
 
          return Main.clear_status_message unless status
 
-         if !STATUSES.include?(status)
+         unless STATUSES.include?(status)
             message = "#{status} #{message}".strip
             status = nil
          end
 
-         Main.set_status(status.to_sym, message)
+         Main.set_status(status && status.to_sym, message)
       end
 
       def completer(line)

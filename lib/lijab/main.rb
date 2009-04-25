@@ -137,7 +137,7 @@ module Main
 
    def set_status(status, msg=nil)
       type = status == :invisible ? :unavailable : nil
-      status = nil if [:online, :invisible].include?(status)
+      status = nil if [:available, :invisible].include?(status)
       @status = status
 
       p = Jabber::Presence.new.set_type(type) \
