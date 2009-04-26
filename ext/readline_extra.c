@@ -17,9 +17,10 @@ VALUE mReadlineExtra = Qnil;
 
 void Init_readline_extra();
 
-static VALUE readline_extra_insert_text(int argc, VALUE *argv, VALUE self);
-static VALUE readline_extra_line_buffer(VALUE self);
-static VALUE readline_extra_parse_and_bind(int argc, VALUE *argv, VALUE self);
+static VALUE readline_extra_s_get_line_buffer(VALUE self);
+static VALUE readline_extra_s_set_line_buffer(VALUE self, VALUE str);
+static VALUE readline_extra_insert_text(VALUE self, VALUE text);
+static VALUE readline_extra_parse_and_bind(VALUE self, VALUE text);
 static VALUE readline_extra_redisplay(VALUE self);
 
 static VALUE readline_extra_s_set_pre_input_proc(VALUE self, VALUE proc);
@@ -47,14 +48,15 @@ void Init_readline_extra()
     rb_define_singleton_method(mReadlineExtra, "char_input_proc=", readline_extra_s_set_char_input_proc, 1);
     rb_define_singleton_method(mReadlineExtra, "char_input_proc", readline_extra_s_get_char_input_proc, 0);
 
-    rb_define_module_function(mReadlineExtra, "line_buffer", readline_extra_line_buffer, -1);
-    rb_define_module_function(mReadlineExtra, "insert_text", readline_extra_insert_text, -1);
-    rb_define_module_function(mReadlineExtra, "parse_and_bind", readline_extra_parse_and_bind, -1);
-    rb_define_module_function(mReadlineExtra, "redisplay", readline_extra_redisplay, -1);
+    rb_define_module_function(mReadlineExtra, "line_buffer", readline_extra_s_get_line_buffer, 0);
+    rb_define_module_function(mReadlineExtra, "line_buffer=", readline_extra_s_set_line_buffer, 1);
+    rb_define_module_function(mReadlineExtra, "insert_text", readline_extra_insert_text, 1);
+    rb_define_module_function(mReadlineExtra, "parse_and_bind", readline_extra_parse_and_bind, 1);
+    rb_define_module_function(mReadlineExtra, "redisplay", readline_extra_redisplay, 0);
 
 }
 
-static VALUE readline_extra_line_buffer(VALUE self)
+static VALUE readline_extra_s_get_line_buffer(VALUE self)
 {
     if (rl_line_buffer)
        return rb_tainted_str_new2(rl_line_buffer);
@@ -62,35 +64,30 @@ static VALUE readline_extra_line_buffer(VALUE self)
        return rb_tainted_str_new2("");
 }
 
-static VALUE readline_extra_insert_text(int argc, VALUE *argv, VALUE self)
+static VALUE readline_extra_s_set_line_buffer(VALUE self, VALUE str)
 {
-    VALUE tmp;
+    rl_replace_line(RSTRING(str)->ptr, 1);
+    rl_point = rl_end;
 
-    if (rb_scan_args(argc, argv, "10", &tmp) > 0) {
-        SafeStringValue(tmp);
-        rl_insert_text(RSTRING_PTR(tmp));
-    }
+    return readline_extra_s_get_line_buffer(self);
+}
 
+static VALUE readline_extra_insert_text(VALUE self, VALUE text)
+{
+    rl_insert_text(RSTRING(text)->ptr);
     return self;
 }
 
 // doesn't seem to work
-static VALUE readline_extra_parse_and_bind(int argc, VALUE *argv, VALUE self)
+static VALUE readline_extra_parse_and_bind(VALUE self, VALUE text)
 {
-    VALUE tmp;
-
-    if (rb_scan_args(argc, argv, "10", &tmp) > 0) {
-        OutputStringValue(tmp);
-        rl_parse_and_bind(RSTRING_PTR(tmp));
-    }
-
+    rl_parse_and_bind(RSTRING(text)->ptr);
     return self;
 }
 
 static VALUE readline_extra_redisplay(VALUE self)
 {
     rl_redisplay();
-
     return self;
 }
 
