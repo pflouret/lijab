@@ -87,7 +87,11 @@ module Commands
       description "Enable/disable printing the contacts' status changes. Can get quite spammish."
 
       def run(args)
-         Config.opts[:show_status_changes] = args.split[0].strip == 'yes'
+         if !args || args.empty?
+            puts Config.opts[:show_status_changes] ? "yes" : "no"
+         else
+            Config.opts[:show_status_changes] = args.strip == "yes"
+         end
       end
    end
 
