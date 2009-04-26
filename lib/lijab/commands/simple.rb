@@ -51,9 +51,8 @@ module Commands
          Out::history(*m)
       end
 
-      def completer(line)
-         _, contact = line.split(nil, 2)
-         Main.contacts.completer(contact, false)
+      class << self
+         include ContactCompleterMixin
       end
    end
 
@@ -68,9 +67,8 @@ module Commands
          InputHandler::multiline(true, first_line)
       end
 
-      def completer(line)
-         _, contact = line.split(nil, 2)
-         Main.contacts.completer(contact, false)
+      class << self
+         include ContactCompleterMixin
       end
    end
 

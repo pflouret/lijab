@@ -21,6 +21,13 @@ module Commands
       end
    end
 
+   module ContactCompleterMixin
+      def completer(line)
+         _, contact = line.split(nil, 2)
+         Main.contacts.completer(contact, false)
+      end
+   end
+
    class CommandError < RuntimeError
    end
 
