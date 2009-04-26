@@ -65,6 +65,22 @@ module Out
       end
    end
 
+   def subscription(from, type, colors=[], time=:now)
+      @monitor.synchronize do
+         time = ftime(time) unless time.kind_of?(String)
+         case type
+         when :subscribe
+            s = "** #{time}subscription request from #{from} received\n" \
+                "** See '/help requests' to see how to handle requests."
+         when :subscribed
+            s = "** #{time}#{from} has subscribed to you"
+         when :unsubscribed
+            s = "** #{time}#{from} has unsubscribed from you"
+         end
+         inline(s)
+      end
+   end
+
    def history(*log_entries)
       log_entries.each do |e|
          contact = Main.contacts[Jabber::JID.new(e[:target])]

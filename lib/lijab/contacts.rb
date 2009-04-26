@@ -155,7 +155,7 @@ module Contacts
    end
 
    class Contacts < Hash
-      attr_reader :roster
+      attr_reader :roster, :subscription_requests
 
       def initialize(roster)
          super()
@@ -167,19 +167,15 @@ module Contacts
          @roster.items[self_ri.jid] = self_ri
 
          @roster.add_presence_callback(&method(:handle_presence))
+         @roster.add_subscription_callback(&method(:handle_subscription))
+         @roster.add_subscription_request_callback(&method(:handle_subscription))
          @roster.wait_for_roster
 
+         @subscription_requests = {}
          @short = {}
 
          @roster.items.each do |jid, item|
-            self[jid] = Contact.new(jid.node, item)
-            if @short.key?(jid.node)
-               self[@short[jid.node].jid].simple_name = jid.strip.to_s
-               @short[@short[jid.node].jid.strip.to_s] = @short.delete(jid.node)
-               @short[jid.strip.to_s] = self[jid]
-            else
-               @short[jid.node] = self[jid]
-            end
+            add(jid, Contact.new(jid.node, item))
          end
       end
 
@@ -199,6 +195,65 @@ module Contacts
          super(k) || super(k.strip)
       end
 
+      def add(jid, contact=nil)
+         if contact
+            self[jid] = contact
+            if @short.key?(jid.node)
+               self[@short[jid.node].jid].simple_name = jid.strip.to_s
+               @short[@short[jid.node].jid.strip.to_s] = @short.delete(jid.node)
+               @short[jid.strip.to_s] = self[jid]
+            else
+               @short[jid.node] = self[jid]
+            end
+         else
+            jid = Jabber::JID.new(jid) unless jid.is_a?(Jabber::JID)
+            jid.strip!
+
+            p = Jabber::Presence.new.set_type(:subscribe)
+            p.to = jid
+
+            Main.client.send(p)
+         end
+      end
+
+      def remove(jid)
+         return false unless key?(jid)
+
+         contact = self[jid]
+         contact.roster_item.remove()
+         @short.delete(contact.simple_name)
+         self.delete(contact.jid)
+
+         true
+      end
+
+      def process_request(jid, action)
+         jid = Jabber::JID.new(jid) unless jid.is_a?(Jabber::JID)
+         jid.strip!
+         if @subscription_requests.include?(jid)
+            @subscription_requests.delete(jid)
+
+            case action
+            when :accept
+               Main.contacts.roster.accept_subscription(jid)
+            when :decline
+               Main.contacts.roster.decline_subscription(jid) if exists
+            end
+
+            true
+         else
+            false
+         end
+      end
+
+      def has_subscription_requests?
+         !@subscription_requests.empty?
+      end
+
+      def subscription_requests
+         @subscription_requests.keys.map { |jid| jid.to_s }
+      end
+
       def completer(line, end_with_colon=true)
          if line.include?(?@)
             matches = @roster.items.values.collect { |ri| ri.presences }.flatten.select do |p|
@@ -211,15 +266,36 @@ module Contacts
       end
 
       def handle_presence(roster_item, old_p, new_p)
-         contact = self[roster_item.jid]
+         contact = self[new_p.from]
          if Config.opts[:show_status_changes]
             type = new_p.type
-            if type == nil || type == :unavailable && !contact.online?
+            if type == nil || type == :unavailable && (!contact || !contact.online?)
                Out::presence(new_p.from.to_s, new_p)
             end
          end
          contact.presence_changed(old_p, new_p) if contact
-         # TODO: handle subscriptions
+      end
+
+      def handle_subscription(roster_item, presence)
+         show = true
+         if presence.type == :subscribe
+            show = !@subscription_requests.key?(presence.from.strip)
+            @subscription_requests[presence.from.strip] = presence
+         elsif presence.type == :subscribed
+            jid = presence.from.strip
+
+            ri = Jabber::Roster::Helper::RosterItem.new(Main.client)
+            ri.jid = jid
+            @roster.items[jid] = ri
+
+            add(jid, Contact.new(jid.node, ri))
+
+            p = Jabber::Presence.new.set_type(:probe)
+            p.to = jid
+            Main.client.send(p)
+         end
+
+         Out::subscription(presence.from.to_s, presence.type) if show
       end
    end
 end
