@@ -24,7 +24,7 @@ module Commands
             unless online_only && !contact.online?
                main = contact.presence
                s << "* #{contact.simple_name} #{main.pretty(true)} " \
-                    "(#{main.priority || 0}) [#{main.from}]"
+                    "(#{main.priority || 0}) [#{main.from || contact.jid}]"
                if contact.roster_item.presences.length > 1
                   contact.roster_item.presences.each do |p|
                      if p != main
