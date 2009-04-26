@@ -35,10 +35,19 @@ module Config
          FileUtils.mkdir_p(path)
       end
 
-      %w{accounts config}.each do |f|
-         @files[f.to_sym] = path = File.join(@basedir, "#{f}.yml")
-         unless File.file?(path)
-            File.open(path, 'w') { |fd| fd.puts(DEFAULT_FILES[f]) }
+      @files[:accounts] = path = File.join(@basedir, "accounts.yml")
+      File.open(path, 'w') { |f| f.puts(DEFAULT_ACCOUNTS_FILE) } unless File.file?(path)
+
+      @files[:config] = path = File.join(@basedir, "config.yml")
+      unless File.file?(path)
+         File.open(path, 'w') do |f|
+            DEFAULT_OPTIONS.each do |a|
+               if a[2]
+                  f.puts
+                  a[2].each { |l| f.puts("# #{l}") }
+               end
+               f.puts(YAML.dump({a[0] => a[1]})[5..-1].chomp)
+            end
          end
       end
    end
@@ -71,7 +80,8 @@ module Config
 
    def read_options
       # FIXME: error check / validate
-      @opts = YAML.load(DEFAULT_FILES["config"])
+
+      @opts = Hash[*DEFAULT_OPTIONS.collect { |a| [a[0], a[1]] }.flatten]
       @opts.merge!(YAML.load_file(@files[:config]))
    end
 
@@ -85,53 +95,42 @@ module Config
       end
    end
 
-   DEFAULT_FILES = {
-      "accounts" => %Q{
-         # Accounts go here. Separate each one with ---
-         # First one is the default.
+   DEFAULT_OPTIONS = [
+      [:datetime_format, "%H:%M:%S", ["Time formatting (leave empty to disable timestamps)"]],
+      [:history_datetime_format, "%Y-%b-%d %H:%M:%S"],
+      [:autocomplete_online_first, true, 
+       ["When completing contacts try to find matches for online contacts, and if none",
+        "is found try to find matches on all of them. Otherwise always match every",
+        "contact."]],
+      [:ctrl_c_quits, false,
+       ["ctrl+c quits the program if enabled, otherwise ctrl+c ignores whatever is",
+        "typed and you get a clean prompt, and ctrl+d on a clean line exits lijab,",
+        "terminal style."]],
+      [:show_status_changes, true, ["Show changes in contacts' status"]],
+      [:aliases, {"/h" => "/history", "/exit" => "/quit"},
+       ["Command aliases.",
+        "<command_alias> : <existing_command>",
+        "Commands can be overloaded.",
+        "For instance /who could be redefined like so to sort by status by default.",
+        "/who : /who status"]]
+   ]
 
-         #---
-         #:name : an_account                  # the account name
-         #:jabberid : fisk@example.com/lijab  # the resource is optional
-         #:password : frosk                   # optional, will prompt if not present
-         #:server : localhost                 # optional, will use the jid domain if not present
-         #:port : 5222                        # optional
-         #:log : yes                          # yes|no ; default no
+   DEFAULT_ACCOUNTS_FILE = %Q{
+      # Accounts go here. Separate each one with ---
+      # First one is the default.
 
-         #---
-         #:name : another_account
-         #:jabberid : another_user@example.com/lijab
-      }.gsub!(/^\s*/, ''),
+      #---
+      #:name : an_account                  # the account name
+      #:jabberid : fisk@example.com/lijab  # the resource is optional
+      #:password : frosk                   # optional, will prompt if not present
+      #:server : localhost                 # optional, will use the jid domain if not present
+      #:port : 5222                        # optional
+      #:log : yes                          # yes|no ; default no
 
-      "config" => %Q{# default config file
-
-# Time formatting (leave empty to not show timestamps)
-:datetime_format : %H:%M:%S                   # normal messages
-:history_datetime_format : %Y-%b-%d %H:%M:%S  # history messages
-
-# When completing contacts try to find matches for online contacts, and if none
-# is found try to find matches on all of them. Otherwise always match every
-# contact.
-:autocomplete_online_first : yes
-
-# ctrl+c quits the program if enabled, otherwise ctrl+c ignores whatever is
-# typed and you get a clean prompt, and ctrl+d on a clean line exits lijab,
-# terminal style
-:ctrl_c_quits : no
-
-# Show changes in contacts' status
-:show_status_changes : no
-
-# Command aliases.
-# <command_alias> : <existing_command>
-# Commands can be overloaded.
-# For instance /who could be redefined like so to sort by status by default
-# /who : /who status
-:aliases :
-   /h : /history
-   /exit : /quit
-      }
-   }
+      #---
+      #:name : another_account
+      #:jabberid : another_user@example.com/lijab
+   }.gsub!(/^\s*/, '')
 
    attr_reader     :jid, :account, :basedir, :dirs, :files, :opts
    module_function :jid, :account, :basedir, :dirs, :files, :opts
