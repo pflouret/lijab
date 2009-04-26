@@ -53,8 +53,8 @@ module Commands
       end
 
       def completer(line)
-         contact = line.split[1] || ""
-         Main.contacts.completer(contact, false) if contact.empty? || !Main.contacts.key?(contact)
+         _, contact = line.split(nil, 2)
+         Main.contacts.completer(contact, false)
       end
    end
 
@@ -70,8 +70,8 @@ module Commands
       end
 
       def completer(line)
-         contact = line.split[1] || ""
-         Main.contacts.completer(contact, false) if contact.empty? || !Main.contacts.key?(contact)
+         _, contact = line.split(nil, 2)
+         Main.contacts.completer(contact, false)
       end
    end
 

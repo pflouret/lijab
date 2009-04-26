@@ -127,7 +127,10 @@ module InputHandler
          msg = msg[1..-1] if msg[0].chr == " " # goddammit, whitespace will be the death of me
 
          @last_to = to
-         Main.contacts[to].send_message(msg)
+         jid = Jabber::JID.new(to)
+         puts jid.to_s
+         jid = nil unless jid.resource
+         Main.contacts[to].send_message(msg, jid)
       end
    end
 

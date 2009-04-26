@@ -61,9 +61,8 @@ module Contacts
       def handle_message(msg)
          @thread = msg.thread
 
-         @resource_jid = msg.from
-
          if msg.body && !msg.body.empty?
+            @resource_jid = msg.from
             Out::message(@simple_name, msg.body, color())
             @history.log(msg.body, :from)
          end
@@ -84,15 +83,19 @@ module Contacts
          end
       end
 
-      def send_message(msg)
+      def send_message(msg, jid=nil)
          if msg.kind_of?(Jabber::Message)
             msg.thread = @thread unless msg.thread
             message = msg
          elsif msg.kind_of?(String) && !msg.empty?
-            # TODO: send to specific jid when applicable
             # TODO: send chat_state only in the first message
+            if jid
+               @resource_jid = jid
+            else
+               jid = @resource_jid
+            end
             Out::outgoing(@simple_name, msg, color())
-            message = Jabber::Message.new(@resource_jid, msg).set_type(:chat) \
+            message = Jabber::Message.new(jid, msg).set_type(:chat) \
                                                              .set_chat_state(:active) \
                                                              .set_thread(@thread)
 
@@ -197,7 +200,13 @@ module Contacts
       end
 
       def completer(line, end_with_colon=true)
-         matches = @short.keys.select { |k| k.match(/^#{Regexp.escape(line)}/) }
+         if line.include?(?@)
+            matches = @roster.items.values.collect { |ri| ri.presences }.flatten.select do |p|
+               p.from.to_s =~ /^#{Regexp.escape(line)}/
+            end.map { |p| p.from.to_s }
+         else
+            matches = @short.keys.select { |k| k =~ (/^#{Regexp.escape(line)}/) }
+         end
          end_with_colon && matches.length == 1 ? "#{matches.first}:" : matches
       end
 
