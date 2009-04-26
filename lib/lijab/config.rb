@@ -109,6 +109,11 @@ module Config
 :datetime_format : %H:%M:%S                   # normal messages
 :history_datetime_format : %Y-%b-%d %H:%M:%S  # history messages
 
+# When completing contacts try to find matches for online contacts, and if none
+# is found try to find matches on all of them. Otherwise always match every
+# contact.
+:autocomplete_online_first : yes
+
 # ctrl+c quits the program if enabled, otherwise ctrl+c ignores whatever is
 # typed and you get a clean prompt, and ctrl+d on a clean line exits lijab,
 # terminal style

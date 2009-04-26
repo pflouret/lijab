@@ -260,7 +260,14 @@ module Contacts
                p.from.to_s =~ /^#{Regexp.escape(line)}/
             end.map { |p| p.from.to_s }
          else
-            matches = @short.keys.select { |k| k =~ (/^#{Regexp.escape(line)}/) }
+            if Config.opts[:autocomplete_online_first]
+               matches = @short.keys.find_all do |name|
+                  @short[name].online? && name =~ /^#{Regexp.escape(line)}/
+               end
+            end
+            if matches.empty? || !Config.opts[:autocomplete_online_first]
+               matches = @short.keys.find_all { |name| name =~ /^#{Regexp.escape(line)}/ }
+            end
          end
          end_with_colon && matches.length == 1 ? "#{matches.first}:" : matches
       end
