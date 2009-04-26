@@ -25,6 +25,18 @@ module InputHandler
             Readline::redisplay
          end
       end
+
+      if Config.opts[:ctrl_c_quits]
+         trap("SIGINT") { Main.quit }
+      else
+         trap("SIGINT") do
+            Readline::line_buffer = ""
+            print "\n#{@prompt}"
+            STDOUT.flush
+            Readline::redisplay
+         end
+      end
+
       read_typed_history()
 
       init_char_input_stuff()
@@ -94,7 +106,11 @@ module InputHandler
                process_input(@multilines.join("\n"))
                multiline(false)
             else
-               puts ; next
+               if Config.opts[:ctrl_c_quits]
+                  puts ; next
+               else
+                  Main.quit
+               end
             end
          elsif !@multiline && t =~ /^\s*$/
             Readline::HISTORY.pop
