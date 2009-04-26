@@ -108,12 +108,15 @@ module Config
 
          # time formatting (leave empty to not show timestamps)
          :datetime_format : %H:%M:%S                   # normal messages
+         :history_datetime_format : %Y-%b-%d %H:%M:%S  # history messages
+
          # ctrl+c quits the program if enabled, otherwise ctrl+c ignores whatever is
          # typed and you get a clean prompt, and ctrl+d on a clean # line exits lijab,
          # terminal style
          :ctrl_c_quits : no
-         :history_datetime_format : %Y-%b-%d %H:%M:%S  # history messages
-         :show_status_changes : no                     # show changes in contacts' status
+
+         # show changes in contacts' status
+         :show_status_changes : no
 
          # Command aliases.
          # <command_alias> : <existing_command>
@@ -123,6 +126,7 @@ module Config
          :aliases :
             /h : /history
             /exit : /quit
+
       }.gsub!(/^\s{9}/, '')
    }
 
