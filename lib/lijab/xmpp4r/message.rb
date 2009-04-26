@@ -26,18 +26,20 @@ unless Jabber::Message.method_defined?(:chat_state)
          add_element(REXML::Element.new(s).add_namespace('http://jabber.org/protocol/chatstates'))
       end
 
-      ##
-      # Sets the message's chat state
-      def set_chat_state(s)
-         self.chat_state = s
-         self
-      end
-
       CHAT_STATES.each do |state|
          define_method("#{state}?") do
             chat_state == state.to_sym
          end
       end
+   end
+end
+
+class Jabber::Message
+   ##
+   # Sets the message's chat state
+   def set_chat_state(s)
+      self.chat_state = s
+      self
    end
 end
 
