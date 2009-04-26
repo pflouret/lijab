@@ -145,7 +145,6 @@ module InputHandler
 
          @last_to = to
          jid = Jabber::JID.new(to)
-         puts jid.to_s
          jid = nil unless jid.resource
          Main.contacts[to].send_message(msg, jid)
       end
