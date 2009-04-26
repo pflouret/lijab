@@ -16,6 +16,7 @@ module InputHandler
 
    def init
       Readline::completer_word_break_characters = ""
+      Readline::completion_append_character = " "
       Readline::completion_proc = method(:completer).to_proc
       Readline::pre_input_proc = lambda do
          print "#{ANSI.cleartoeol}" ; STDOUT.flush
