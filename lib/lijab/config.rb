@@ -103,31 +103,29 @@ module Config
          #:jabberid : another_user@example.com/lijab
       }.gsub!(/^\s*/, ''),
 
-      "config" => %Q{
-         # default config file
+      "config" => %Q{# default config file
 
-         # time formatting (leave empty to not show timestamps)
-         :datetime_format : %H:%M:%S                   # normal messages
-         :history_datetime_format : %Y-%b-%d %H:%M:%S  # history messages
+# Time formatting (leave empty to not show timestamps)
+:datetime_format : %H:%M:%S                   # normal messages
+:history_datetime_format : %Y-%b-%d %H:%M:%S  # history messages
 
-         # ctrl+c quits the program if enabled, otherwise ctrl+c ignores whatever is
-         # typed and you get a clean prompt, and ctrl+d on a clean # line exits lijab,
-         # terminal style
-         :ctrl_c_quits : no
+# ctrl+c quits the program if enabled, otherwise ctrl+c ignores whatever is
+# typed and you get a clean prompt, and ctrl+d on a clean line exits lijab,
+# terminal style
+:ctrl_c_quits : no
 
-         # show changes in contacts' status
-         :show_status_changes : no
+# Show changes in contacts' status
+:show_status_changes : no
 
-         # Command aliases.
-         # <command_alias> : <existing_command>
-         # Commands can be overloaded.
-         # For instance /who could be redefined like so to sort by status by default
-         # /who : /who status
-         :aliases :
-            /h : /history
-            /exit : /quit
-
-      }.gsub!(/^\s{9}/, '')
+# Command aliases.
+# <command_alias> : <existing_command>
+# Commands can be overloaded.
+# For instance /who could be redefined like so to sort by status by default
+# /who : /who status
+:aliases :
+   /h : /history
+   /exit : /quit
+      }
    }
 
    attr_reader     :jid, :account, :basedir, :dirs, :files, :opts
