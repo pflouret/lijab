@@ -66,7 +66,7 @@ module Config
       errors << "need at least one account!" if @accounts.empty?
 
       @accounts.each do |a|
-         a[:port] ||= 5222
+         a[:port] ||= a[:use_ssl] ? 5223 : 5222
 
          errors << "account #{a} needs a name" unless a.key?(:name)
          errors << "account #{a[:name] || a} needs a jabberid" unless a.key?(:jabberid)
@@ -131,6 +131,7 @@ module Config
       #:name : an_account                  # the account name
       #:jabberid : fisk@example.com/lijab  # the resource is optional
       #:password : frosk                   # optional, will prompt if not present
+      #:use_ssl : no                       # deprecated in jabber, but might help sometimes
       #:server : localhost                 # optional, will use the jid domain if not present
       #:port : 5222                        # optional
       #:log : yes                          # yes|no ; default no

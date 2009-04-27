@@ -94,6 +94,7 @@ module Main
 
          Out::inline("connecting...", false)
 
+         @client.use_ssl = Config.account[:use_ssl]
          @client.connect(Config.account[:server], Config.account[:port])
 
          loop do
