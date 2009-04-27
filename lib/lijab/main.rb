@@ -54,7 +54,7 @@ module Main
 
       begin
          setup_client()
-      rescue SystemCallError
+      rescue SystemCallError, SocketError
          Out::error("couldn't connect")
          reconnect()
       end
@@ -138,7 +138,7 @@ module Main
             setup_client()
             Out::clear_infoline
             break
-         rescue SystemCallError
+         rescue SystemCallError, SocketError
          end
       end
    end
