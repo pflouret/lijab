@@ -145,9 +145,10 @@ module Main
 
    def set_status(status, msg=nil)
       type = status == :invisible ? :unavailable : nil
+      priority = Config.opts[:status_priorities][status]
       status = nil if [:available, :invisible].include?(status)
 
-      @presence.set_type(type).set_show(status).set_status(msg)
+      @presence.set_type(type).set_show(status).set_status(msg).set_priority(priority)
 
       @client.send(@presence)
    end
