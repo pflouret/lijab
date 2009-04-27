@@ -10,6 +10,7 @@ module Lijab
 module Out
 
    @monitor = Monitor.new
+   @time = Time.now
 
    module_function
 
@@ -25,13 +26,24 @@ module Out
       STDOUT.flush
    end
 
+   def notice_if_day_changed(redisplay_line)
+      t = Time.now
+      if @time.day != t.day
+         print ANSIMove.up(1) unless redisplay_line
+         ft = @time.strftime('%Y-%M-%d')
+         Out::inline("** day changed -- #{ft} -> #{Date.today}".green)
+         puts unless redisplay_line
+         @time = t
+      end
+   end
+
    # TODO: ugh, clean this shit up
    def conversation(prefix, text, colors=[], print_inline=true, move_up=false)
          n_lines = text.count($/) + 1
          lines = text.lines.to_a
          return unless lines[0]
 
-         print "#{ANSIMove.up(n_lines)}" if print_inline && move_up
+         print ANSIMove.up(n_lines) if print_inline && move_up
 
          inline(prefix.colored(*colors) + "#{lines.shift.chomp}", print_inline)
 
@@ -44,6 +56,7 @@ module Out
 
    def message(from, text, color=:clear, print_inline=true, time=:now)
       @monitor.synchronize do
+         notice_if_day_changed(true)
          time = ftime(time) unless time.kind_of?(String)
          conversation("#{time}#{from} -> ", text+"\a", [color, :bold], print_inline)
       end
@@ -51,6 +64,7 @@ module Out
 
    def outgoing(to, text, color=:clear, print_inline=true, time=:now)
       @monitor.synchronize do
+         notice_if_day_changed(false)
          time = ftime(time) unless time.kind_of?(String)
          conversation("#{time}#{to} <- ", text, [color], print_inline, true)
       end
@@ -58,6 +72,7 @@ module Out
 
    def presence(from, presence, color=:clear, time=:now)
       @monitor.synchronize do
+         notice_if_day_changed(true)
          time = ftime(time) unless time.kind_of?(String)
          s = "** #{time}#{from} (#{presence.priority || 0}) is now ".send(color)
          s += presence.pretty(true)
@@ -67,6 +82,7 @@ module Out
 
    def subscription(from, type, colors=[], time=:now)
       @monitor.synchronize do
+         notice_if_day_changed(true)
          time = ftime(time) unless time.kind_of?(String)
          case type
          when :subscribe
