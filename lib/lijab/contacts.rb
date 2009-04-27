@@ -36,8 +36,7 @@ module Contacts
       attr_writer :color
       attr_reader :roster_item
 
-      COLORS = [:red, :blue, :yellow, :green, :magenta, :cyan].shuffle!
-
+      COLORS = [:red, :blue, :yellow, :green, :magenta, :cyan].sort_by { rand() }
       @@cur_color = 0
 
       def initialize(simple_name, roster_item)
