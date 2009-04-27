@@ -1,5 +1,6 @@
 require 'rubygems'
 
+require 'date'
 require 'rake'
 require 'rake/clean'
 require 'rake/gempackagetask'

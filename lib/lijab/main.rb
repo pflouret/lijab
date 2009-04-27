@@ -1,9 +1,11 @@
+require 'date'
 require 'file/tail'
 require 'monitor'
 require 'optparse'
 require 'term/ansicolor'
 require 'xmpp4r'
 require 'xmpp4r/roster'
+require 'yaml'
 
 require 'lijab/commands'
 require 'lijab/config'
