@@ -218,6 +218,7 @@ module Main
       rescue
       end
       InputHandler::save_typed_history
+      Config::dump_config_file(false, true)
       save_session()
       puts "\nexiting..."
       exit 0

@@ -38,15 +38,20 @@ module Config
       @files[:accounts] = path = File.join(@basedir, "accounts.yml")
       File.open(path, 'w') { |f| f.puts(DEFAULT_ACCOUNTS_FILE) } unless File.file?(path)
 
-      @files[:config] = path = File.join(@basedir, "config.yml")
-      unless File.file?(path)
-         File.open(path, 'w') do |f|
+      @files[:config] = File.join(@basedir, "config.yml")
+      dump_config_file(true)
+   end
+
+   def dump_config_file(default=false, clobber=false)
+      if !File.file?(@files[:config]) || clobber
+         File.open(@files[:config], 'w') do |f|
             DEFAULT_OPTIONS.each do |a|
                if a[2]
                   f.puts
                   a[2].each { |l| f.puts("# #{l}") }
                end
-               f.puts(YAML.dump({a[0] => a[1]})[5..-1].chomp)
+               v = default ? a[1] : @opts[a[0]]
+               f.puts(YAML.dump({a[0] => v})[5..-1].chomp)
             end
          end
       end
