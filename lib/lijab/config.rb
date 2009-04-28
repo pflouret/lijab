@@ -134,15 +134,25 @@ module Config
       #:name : an_account                  # the account name
       #:jabberid : fisk@example.com/lijab  # the resource is optional
       #:password : frosk                   # optional, will prompt if not present
-      #:use_ssl : no                       # deprecated in jabber, but might help sometimes
       #:server : localhost                 # optional, will use the jid domain if not present
       #:port : 5222                        # optional
+      #:use_ssl : no                       # deprecated in jabber, but might help sometimes
       #:log : yes                          # yes|no ; default no
 
       #---
       #:name : another_account
       #:jabberid : another_user@example.com/lijab
-   }.gsub!(/^\s*/, '')
+
+      #---
+      #:name : gmail_account
+      #:jabberid : blah@gmail.com/lijab
+      #:server : talk.google.com
+      ## might wanna try use_ssl if the normal settings don't work (e.g. in ubuntu afaik)
+      ##:port : 5223
+      ##:use_ssl : yes
+      #:log : yes
+
+   }.gsub!(/^ */, '')
 
    attr_reader     :jid, :account, :basedir, :dirs, :files, :opts
    module_function :jid, :account, :basedir, :dirs, :files, :opts
