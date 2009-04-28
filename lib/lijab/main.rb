@@ -170,7 +170,7 @@ module Main
       options = {:debug => false}
       begin
          op = OptionParser.new do |opts|
-            opts.banner = "usage: lijab [-a ACCOUNTNAME] [-d BASEDIR] [-D]\n\n"
+            opts.banner = "usage: lijab [-h | -V | [-a ACCOUNTNAME] [-d BASEDIR] [-D]]\n\n"
             opts.on("-D", "--[no-]debug",
                     "output xmpp debug information to stderr") { |v| options[:debug] = v }
             opts.on("-d", "--basedir BASEDIR",
@@ -182,7 +182,12 @@ module Main
                exit(0)
             end
          end
-         op.parse!
+         begin
+            op.parse!
+         rescue OptionParser::ParseError => e
+            puts "#{e}\n\n#{op.banner.chomp}"
+            exit(1)
+         end
       rescue OptionParser::MissingArgument
          puts "lijab: error: #{$!}\n\n#{op}"
          exit 1
