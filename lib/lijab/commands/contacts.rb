@@ -27,7 +27,7 @@ module Commands
                     "(#{main.priority || 0}) [#{main.from || contact.jid}]"
                if contact.roster_item.presences.length > 1
                   contact.roster_item.presences.each do |p|
-                     if p != main
+                     if p.from != main.from
                         s << "    #{p.from} #{p.pretty(true)} (#{p.priority || 0})"
                      end
                   end
