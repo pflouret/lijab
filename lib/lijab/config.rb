@@ -24,7 +24,10 @@ module Config
 
    def setup_basedir(basedir)
       xdg = ENV["XDG_CONFIG_HOME"]
-      @basedir = basedir || xdg && File.join(xdg, "lijab") || File.expand_path("~/.lijab")
+      @basedir = basedir ||
+                 xdg && File.join(xdg, "lijab") ||
+                 "~/.lijab"
+      @basedir = File.expand_path(@basedir)
 
       unless File.directory?(@basedir)
          puts "Creating #{@basedir} with the default configs"
