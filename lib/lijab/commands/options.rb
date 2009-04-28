@@ -4,7 +4,7 @@ module Commands
 
    Command.define :set do
       usage "/set <option> [<value>]"
-      description "Modify the options. Print the current value if no <value> is given.\n"
+      description "Modify the options. Print the current value if no <value> is given.\n" \
                   "See #{Config.files[:config]} for the available options."
       def run(args)
          option, value = args.split(nil, 2).strip
