@@ -172,7 +172,7 @@ module Main
          op = OptionParser.new do |opts|
             opts.banner = "usage: lijab [-a ACCOUNTNAME] [-d BASEDIR] [-D]\n\n"
             opts.on("-D", "--[no-]debug",
-                    "show xmpp debug information") { |v| options[:debug] = v }
+                    "output xmpp debug information to stderr") { |v| options[:debug] = v }
             opts.on("-d", "--basedir BASEDIR",
                     "configs base directory") { |v| options[:basedir] = v }
             opts.on("-a", "--account ACCOUNTNAME",
