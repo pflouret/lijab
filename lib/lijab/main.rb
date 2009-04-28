@@ -54,6 +54,8 @@ module Main
 
       @connected = false
 
+      print ANSI.title("lijab -- #{Config.jid.strip}") ; STDOUT.flush
+
       begin
          setup_client()
       rescue SystemCallError, SocketError
