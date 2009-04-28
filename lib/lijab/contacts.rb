@@ -279,7 +279,11 @@ module Contacts
                Out::presence(new_p.from.to_s, new_p)
             end
          end
-         contact.presence_changed(old_p, new_p) if contact
+
+         if contact
+            contact.roster_item.presences.delete_if { |p| p.type == :unavailable }
+            contact.presence_changed(old_p, new_p)
+         end
       end
 
       def handle_subscription(roster_item, presence)
