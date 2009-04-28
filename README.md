@@ -6,6 +6,15 @@ A line oriented extensible jabber client.
 http://palbo.github.com/lijab
 
 
+Disclaimer
+----------
+
+This program carries a big Works For Me™ sign, and is tested in very little
+configurations, so messages may be lost, misrouted, eaten, etc.
+
+Use at your own risk! :-)
+
+
 Features
 --------
 
