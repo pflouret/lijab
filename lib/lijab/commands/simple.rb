@@ -9,9 +9,30 @@ module Commands
       def run(args)
          if args.empty?
             puts %Q{
-               Help goes here you lazy ass.
-               "/help help" is a good place to start
-            }.gsub!(/^\s*/, '')
+               When in doubt, hit <tab>.
+
+               Some general hints:
+
+               Run "lijab -a <name>" to connect to the account named <name>.
+
+               Tab on an empty line will try to complete online contacts.
+               If there are no online contact matches for what you typed, offline contacts will also be
+               considered.
+
+               You can tab-complete specific resources of a contact by typing the contact name
+               followed by an @ character, e.g. somecontact@<tab> will complete all the available 
+               resources for the contact and a message can be sent to that specific resource.
+
+               Config/logs folder is at #{Config.basedir}
+
+               Put your custom commands in #{Config.dirs[:commands]}
+               Check out the files in <install-path>/lib/lijab/commands/ for some examples.
+
+               Put your custom hooks in #{Config.dirs[:hooks]}
+
+               Send mails to quuxbaz@gmail.com to complain about the lack of documentation :-)
+
+            }.gsub!(/^ */, '')
          else
             cmd = Commands::get(args)
             if cmd
