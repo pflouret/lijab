@@ -115,6 +115,7 @@ module Config
         "typed and you get a clean prompt, and ctrl+d on a clean line exits lijab,",
         "terminal style."]],
       [:show_status_changes, true, ["Show changes in contacts' status"]],
+      [:terminal_bell_on_message, true, ["Ring the terminal bell on incoming message"]],
       [:status_priorities,
        {:chat => 55, :available => 50, :away => 40, :xa => 30, :dnd => 20},
        ["Default priority for each status"]],

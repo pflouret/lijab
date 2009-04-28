@@ -58,7 +58,8 @@ module Out
       @monitor.synchronize do
          notice_if_day_changed(true)
          time = ftime(time) unless time.kind_of?(String)
-         conversation("#{time}#{from} -> ", text+"\a", [color, :bold], print_inline)
+         print "\a" if Config.opts[:terminal_bell_on_message]
+         conversation("#{time}#{from} -> ", text, [color, :bold], print_inline)
       end
    end
 
