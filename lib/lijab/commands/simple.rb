@@ -3,7 +3,7 @@ module Lijab
 module Commands
 
    Command.define :help do
-      usage "/help [<command>]"
+      usage "/help [<command> | commands]"
       description "Get some help."
 
       def run(args)
@@ -34,24 +34,36 @@ module Commands
 
             }.gsub!(/^ */, '')
          else
-            cmd = Commands::get(args)
-            if cmd
-               s = "usage: #{cmd.usage}\n\n" if cmd.usage
-               s = "#{s}#{cmd.description}"
-               # FIXME: make Out::normal or something, could use Out::inline(s, false)
-               # but it feels wrong
-               puts s
+            if args == "commands"
+               puts
+               Commands::registered.each do |name, cmd|
+                  puts %{#{cmd.usage || "/#{name}"}}.magenta
+                  puts "#{cmd.description}\n\n"
+               end
             else
-               raise CommandError, %(No such command "#{args}")
+               cmd = Commands::get(args)
+               if cmd
+                  s = "usage: #{cmd.usage}\n\n" if cmd.usage
+                  s = "#{s}#{cmd.description}"
+                  # FIXME: make Out::normal or something, could use Out::inline(s, false)
+                  # but it feels wrong
+                  puts s
+               else
+                  raise CommandError, %(No such command "#{args}")
+               end
             end
          end
       end
 
       def completer(line)
          help_cmd, rest = line.split(" ", 2)
+         rest ||= ""
+
+         m = "commands" =~ /^#{Regexp.escape(rest)}/ ? ["commands"] : []
+
          rest = "/#{rest}"
 
-         Commands::completer(rest).map { |c| c[1..-1] } if rest.split(" ", 2).length == 1
+         m += Commands::completer(rest).map { |c| c[1..-1] } if rest.split(" ", 2).length == 1
       end
    end
 
