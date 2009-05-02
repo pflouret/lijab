@@ -208,10 +208,7 @@ module Contacts
             jid = Jabber::JID.new(jid) unless jid.is_a?(Jabber::JID)
             jid.strip!
 
-            p = Jabber::Presence.new.set_type(:subscribe)
-            p.to = jid
-
-            Main.client.send(p)
+            @roster.add(jid, nil, true)
          end
       end
 
@@ -294,17 +291,9 @@ module Contacts
          elsif presence.type == :subscribed
             jid = presence.from.strip
 
-            # FIXME: subscriptions are teh b0rk
-
-            #ri = Jabber::Roster::Helper::RosterItem.new(Main.client)
-            #ri.jid = jid
-            #@roster.items[jid] = ri
-
-            #add(jid, Contact.new(jid.node, ri))
-
+            @roster.add(jid)
+            add(jid, Contact.new(jid.node, @roster[jid]))
             #p = Jabber::Presence.new.set_type(:probe)
-            #p.to = jid
-            #Main.client.send(p)
          end
 
          Out::subscription(presence.from.to_s, presence.type) if show

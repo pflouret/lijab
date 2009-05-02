@@ -44,7 +44,7 @@ module Commands
             raise CommandError, "need the user's address" unless addr and !addr.empty?
 
             if ["accept", "accept_and_add"].include?(action)
-               success = Main.contacts.process_request(addr, :allow)
+               success = Main.contacts.process_request(addr, :accept)
                Main.contacts.add(addr) if success && action == "accept_and_add"
             else
                success = Main.contacts.process_request(addr, :decline)

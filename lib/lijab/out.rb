@@ -109,7 +109,7 @@ module Out
             s = "#{time}** subscription request from #{from} received\n" \
                 "#{' '*time.length}** See '/help requests' to see how to handle requests."
          when :subscribed
-            s = "**#{time}#{from} has subscribed to you"
+            s = "** #{time}#{from} has subscribed to you"
          when :unsubscribed
             s = "** #{time}#{from} has unsubscribed from you"
          end
