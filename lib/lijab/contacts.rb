@@ -281,7 +281,7 @@ module Contacts
          end
 
          if contact
-            contact.roster_item.presences.delete_if { |p| p.type == :unavailable }
+            contact.roster_item.presences.delete_if { |p| p.type == :unavailable } rescue nil
             contact.presence_changed(old_p, new_p)
          end
       end

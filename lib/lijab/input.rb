@@ -61,6 +61,7 @@ module InputHandler
       @on_char_input_blocks << lambda do |c|
          to, msg = Readline::line_buffer.split(":", 2).strip
          if to && msg && Main.contacts.key?(to)
+            # TODO: try to see if a thread improves things
             Main.contacts[to].typed_stuff
          end
          c
