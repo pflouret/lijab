@@ -63,7 +63,7 @@ module Commands
             end
          end
 
-         Out::inline(s.join("\n"), false) unless s.empty?
+         Out::put(s.join("\n")) unless s.empty?
       end
 
    end

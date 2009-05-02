@@ -29,7 +29,7 @@ module Commands
                Out::error("invalid value", false)
             end
          else
-            puts YAML.dump(Config.opts[option])[4..-1].chomp
+            Out::put(YAML.dump(Config.opts[option])[4..-1].chomp)
          end
 
       end

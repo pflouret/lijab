@@ -8,7 +8,7 @@ module Commands
 
       def run(args)
          if args.empty?
-            puts %Q{
+            s = %Q{
                When in doubt, hit <tab>.
 
                Some general hints:
@@ -33,21 +33,20 @@ module Commands
                Send mails to quuxbaz@gmail.com to complain about the lack of documentation :-)
 
             }.gsub!(/^ */, '')
+            Out::put(s)
          else
             if args == "commands"
-               puts
+               Out::put
                Commands::registered.each do |name, cmd|
-                  puts %{#{cmd.usage || "/#{name}"}}.magenta
-                  puts "#{cmd.description}\n\n"
+                  Out::put(%{#{cmd.usage || "/#{name}"}}.magenta)
+                  Out::put("#{cmd.description}\n\n")
                end
             else
                cmd = Commands::get(args)
                if cmd
                   s = "usage: #{cmd.usage}\n\n" if cmd.usage
                   s = "#{s}#{cmd.description}"
-                  # FIXME: make Out::normal or something, could use Out::inline(s, false)
-                  # but it feels wrong
-                  puts s
+                  Out::put(s)
                else
                   raise CommandError, %(No such command "#{args}")
                end
@@ -76,7 +75,7 @@ module Commands
          limit ||= 10
 
          if contact
-            return puts %(No contact named "#{contact}) unless Main.contacts.key?(contact)
+            raise CommandError, %(No contact named "#{contact}) unless Main.contacts.key?(contact)
             m = Main.contacts[contact].history.last(limit.to_i)
          else
             m = HistoryHandler::last(limit.to_i)
@@ -121,7 +120,7 @@ module Commands
 
       def run(args)
          if !args || args.empty?
-            puts Config.opts[:show_status_changes] ? "yes" : "no"
+            Out::put(Config.opts[:show_status_changes] ? "yes" : "no")
          else
             Config.opts[:show_status_changes] = args.strip == "yes"
          end

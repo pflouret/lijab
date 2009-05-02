@@ -62,7 +62,7 @@ module Contacts
 
          if msg.body && !msg.body.empty?
             @resource_jid = msg.from
-            Out::message(@simple_name, msg.body, color())
+            Out::message_in(@simple_name, msg.body, [color(), :bold])
             @history.log(msg.body, :from)
          end
 
@@ -93,7 +93,7 @@ module Contacts
             else
                jid = @resource_jid
             end
-            Out::outgoing(@simple_name, msg, color())
+            Out::message_out(@simple_name, msg, color())
             message = Jabber::Message.new(jid, msg).set_type(:chat) \
                                                              .set_chat_state(:active) \
                                                              .set_thread(@thread)
@@ -230,13 +230,13 @@ module Contacts
          jid = Jabber::JID.new(jid) unless jid.is_a?(Jabber::JID)
          jid.strip!
          if @subscription_requests.include?(jid)
-            @subscription_requests.delete(jid)
 
+            @subscription_requests.delete(jid)
             case action
             when :accept
                Main.contacts.roster.accept_subscription(jid)
             when :decline
-               Main.contacts.roster.decline_subscription(jid) if exists
+               Main.contacts.roster.decline_subscription(jid)
             end
 
             true
@@ -294,15 +294,17 @@ module Contacts
          elsif presence.type == :subscribed
             jid = presence.from.strip
 
-            ri = Jabber::Roster::Helper::RosterItem.new(Main.client)
-            ri.jid = jid
-            @roster.items[jid] = ri
+            # FIXME: subscriptions are teh b0rk
 
-            add(jid, Contact.new(jid.node, ri))
+            #ri = Jabber::Roster::Helper::RosterItem.new(Main.client)
+            #ri.jid = jid
+            #@roster.items[jid] = ri
 
-            p = Jabber::Presence.new.set_type(:probe)
-            p.to = jid
-            Main.client.send(p)
+            #add(jid, Contact.new(jid.node, ri))
+
+            #p = Jabber::Presence.new.set_type(:probe)
+            #p.to = jid
+            #Main.client.send(p)
          end
 
          Out::subscription(presence.from.to_s, presence.type) if show

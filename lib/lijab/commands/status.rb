@@ -9,7 +9,8 @@ module Commands
 
       def run(args)
          if args.strip.empty?
-            return puts "Current priority is #{Main.presence.priority}"
+            Out::put("Current priority is #{Main.presence.priority}")
+            return
          end
 
          begin
@@ -38,7 +39,7 @@ module Commands
 
          unless status
             p = Main.presence
-            puts "#{Config.jid} (#{p.priority || 0}) #{p.pretty(true)}"
+            Out::put("#{Config.jid} (#{p.priority || 0}) #{p.pretty(true)}")
             return
          end
 

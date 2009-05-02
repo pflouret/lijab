@@ -94,7 +94,7 @@ module Main
             Main.contacts[msg.from].handle_message(msg) if Main.contacts.key?(msg.from)
          end
 
-         Out::inline("connecting...", false)
+         Out::put("connecting...".yellow, true)
 
          @client.use_ssl = Config.account[:use_ssl]
          @client.connect(Config.account[:server], Config.account[:port])
@@ -104,6 +104,7 @@ module Main
                if !Config.account[:password]
                   print "#{Config.account[:name]} account password: "
                   system("stty -echo") # FIXME
+                  STDIN.read_nonblock(9999999) rescue nil
                   Config.account[:password] = gets.chomp
                   system("stty echo")
                   puts
@@ -124,7 +125,7 @@ module Main
          setup_after_connect()
          HooksHandler::handle_connect
 
-         Out::inline("connected!".green, true)
+         Out::put("connected!".green, true)
       ensure
          @monitor.exit
       end

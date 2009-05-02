@@ -7,7 +7,7 @@ module Commands
 
       def run(args)
          Main.contacts.add(args)
-         puts "subscription request sent to #{args}"
+         Out::put("subscription request sent to #{args}")
       end
    end
 
@@ -53,10 +53,10 @@ module Commands
             raise CommandError, "no pending request from #{addr}" unless success
          else
             if Main.contacts.has_subscription_requests?
-               puts "pending requests from:"
-               puts Main.contacts.subscription_requests.join("\n")
+               Out::put("pending requests from:")
+               Out::put(Main.contacts.subscription_requests.join("\n"))
             else
-               puts "no pending requests"
+               Out::put("no pending requests")
             end
          end
       end
@@ -74,29 +74,5 @@ module Commands
       end
    end
 
-   Command.define :decline do
-      usage "/decline [<user@server>]"
-      description "Decline a user request to see your status."
-
-      def run(args)
-         if args.empty?
-            if Main.contacts.has_subscription_requests?
-               print "pending requests from:"
-               puts Main.contacts.subscription_requests.join("\n- ")
-            else
-               puts "no pending requests"
-            end
-         else
-            unless Main.contacts.decline(args)
-               raise CommandError, "no pending request from #{args}"
-            end
-         end
-      end
-
-      def completer(line)
-         _, addr = line.split(nil, 2)
-         Main.contacts.subscription_requests.grep(/^#{Regexp.escape(addr)}/)
-      end
-   end
 end
 end

@@ -12,7 +12,7 @@ module HistoryHandler
       end
 
       def last(*a)
-         puts "warning: logs are disabled"
+         Out::put("warning: logs are disabled")
          []
       end
    end
@@ -103,7 +103,7 @@ module HistoryHandler
 
    def last(n)
       unless Config.account[:log]
-         puts "warning: logs are disabled"
+         Out::put("warning: logs are disabled")
          return []
       end
 

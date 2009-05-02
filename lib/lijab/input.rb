@@ -9,6 +9,7 @@ module InputHandler
 
    @prompt = DEFAULT_PROMPT
    @last_to = ""
+   @last_typed = ""
    @multiline = false
    @multilines = []
 
@@ -31,9 +32,10 @@ module InputHandler
       else
          trap("SIGINT") do
             Readline::line_buffer = ""
-            print "\n#{@prompt}"
+            puts
+            Out::make_infoline
+            print "#{@prompt}"
             STDOUT.flush
-            Readline::redisplay
          end
       end
 
@@ -102,8 +104,11 @@ module InputHandler
 
          t = Readline::readline(@prompt, true)
 
+         @last_typed = t || ""
+
          if !t
             if @multiline
+               @last_typed = @multilines
                process_input(@multilines.join("\n"))
                multiline(false)
             else
@@ -120,6 +125,7 @@ module InputHandler
 
             if @multiline
                @multilines.push(t)
+               @last_typed = @multilines
             else
                process_input(t)
             end
@@ -151,8 +157,45 @@ module InputHandler
       end
    end
 
+   def delete_last_typed
+      if @last_typed.is_a?(Array)
+         @last_typed.each do |line|
+            # line length + multiline prompt + \n
+            # FIXME: put the multiline prompt somewhere
+            print "\b" * (line.length + 6)
+            print "#{ANSIMove.up(1)}"
+         end
+         print "#{ANSIMove.down(1)}" if @last_typed.length > 0
+      else
+         print "\b" * @last_typed.length
+      end
+   end
+
+   def delete_typed
+      if @multiline
+         delete_last_typed()
+      else
+         print "\b" * Readline::line_buffer.length
+      end
+   end
+
+   def redisplay_input()
+      if @multiline && !@multilines.empty?
+         puts "#{ANSI.clearline}#{DEFAULT_PROMPT}#{@multilines[0]}"
+         @multilines[1..-1].each do |line|
+            puts "#{ANSI.clearline}#{@prompt}#{line}"
+         end
+      end
+
+      Out::make_infoline()
+      print "#{@prompt}#{Readline::line_buffer}"
+      STDOUT.flush
+   end
+
+
    def completer(line)
       return if !Main.connected
+
       if line[0] == ?/
          Commands::completer(line)
       else

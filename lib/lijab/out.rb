@@ -1,3 +1,4 @@
+require 'lijab/input'
 require 'lijab/term/ansi'
 require 'monitor'
 require 'readline'
@@ -14,87 +15,108 @@ module Out
 
    module_function
 
-   def inline(s, redisplay_line=true)
-      Out::clear_infoline if redisplay_line
-
-      print %{#{ANSI.clearline}#{s}\n}
-
-      if redisplay_line
-         make_infoline()
-         print "#{InputHandler::prompt}#{Readline::line_buffer}"
-      end
-      STDOUT.flush
+   def put(s="\n", redisplay_input=false)
+      #clear_infoline()
+      puts "#{ANSI.clearline}#{s}"
+      InputHandler::redisplay_input if redisplay_input
    end
 
-   def notice_if_day_changed(redisplay_line)
+   def notice_if_day_changed(redisplay_input=true)
       t = Time.now
       if @time.day != t.day
-         print ANSIMove.up(1) unless redisplay_line
          ft = @time.strftime('%Y-%M-%d')
-         Out::inline("** day changed -- #{ft} -> #{Date.today}".green)
-         puts unless redisplay_line
          @time = t
+         puts "#{ANSI.clearline}** day changed -- #{ft} -> #{Date.today}".green
       end
    end
 
-   # TODO: ugh, clean this shit up
-   def conversation(prefix, text, colors=[], print_inline=true, move_up=false)
-         n_lines = text.count($/) + 1
-         lines = text.lines.to_a
-         return unless lines[0]
+   def format_time(time=nil, format=:datetime_format)
+      return "" unless time
+      time = Time.now if time == :now
 
-         print ANSIMove.up(n_lines) if print_inline && move_up
-
-         inline(prefix.colored(*colors) + "#{lines.shift.chomp}", print_inline)
-
-         prefix = " " * prefix.length
-
-         lines.each do |l|
-            inline(prefix + "#{l.chomp}", print_inline)
-         end
+      "#{time.strftime(Config.opts[format])} "
    end
 
-   def message(from, text, color=:clear, print_inline=true, time=:now)
+   def format_message_in(from, text, colors, time)
+      "#{ANSI.clearline}#{time}#{from} <- ".colored(*colors) + text
+   end
+   
+   def format_message_out(to, text, colors, time)
+
+      prefix = "#{time}#{to} -> "
+      indent = " " * prefix.length
+
+      lines = text.to_a
+      s = []
+
+      s << "#{ANSI.clearline}#{prefix.colored(*colors)}#{lines.shift.chomp}"
+      lines.each do |l|
+         s << "#{ANSI.clearline}#{indent}#{l.chomp}"
+      end
+
+      s.join("\n")
+   end
+
+   def message_in(from, text, colors=[])
       @monitor.synchronize do
-         notice_if_day_changed(true)
-         time = ftime(time) unless time.kind_of?(String)
+         clear_infoline()
+         InputHandler::delete_typed
+
+         notice_if_day_changed()
+
          print "\a" if Config.opts[:terminal_bell_on_message]
-         conversation("#{time}#{from} -> ", text, [color, :bold], print_inline)
+         puts format_message_in(from, text, colors, format_time(:now))
+
+         InputHandler::redisplay_input
       end
    end
 
-   def outgoing(to, text, color=:clear, print_inline=true, time=:now)
+   def message_out(to, text, colors=[])
       @monitor.synchronize do
+         InputHandler::delete_last_typed
+
          notice_if_day_changed(false)
-         time = ftime(time) unless time.kind_of?(String)
-         conversation("#{time}#{to} <- ", text, [color], print_inline, true)
+
+         puts format_message_out(to, text, colors, format_time(:now))
       end
    end
 
-   def presence(from, presence, color=:clear, time=:now)
+   def presence(from, presence, colors=[])
       @monitor.synchronize do
-         notice_if_day_changed(true)
-         time = ftime(time) unless time.kind_of?(String)
-         s = "** #{time}#{from} (#{presence.priority || 0}) is now ".send(color)
-         s += presence.pretty(true)
-         inline(s)
+         clear_infoline()
+         InputHandler::delete_typed
+
+         notice_if_day_changed()
+
+         print "#{ANSI.clearline}"
+         print "** #{format_time(:now)}#{from} (#{presence.priority || 0}) is now ".colored(*colors)
+         puts presence.pretty(true)
+
+         InputHandler::redisplay_input
       end
    end
 
-   def subscription(from, type, colors=[], time=:now)
+   def subscription(from, type, colors=[])
       @monitor.synchronize do
-         notice_if_day_changed(true)
-         time = ftime(time) unless time.kind_of?(String)
+         clear_infoline()
+         InputHandler::delete_typed
+
+         notice_if_day_changed()
+
+         time = format_time(:now)
          case type
          when :subscribe
-            s = "** #{time}subscription request from #{from} received\n" \
-                "** See '/help requests' to see how to handle requests."
+            s = "#{time}** subscription request from #{from} received\n" \
+                "#{' '*time.length}** See '/help requests' to see how to handle requests."
          when :subscribed
-            s = "** #{time}#{from} has subscribed to you"
+            s = "**#{time}#{from} has subscribed to you"
          when :unsubscribed
             s = "** #{time}#{from} has unsubscribed from you"
          end
-         inline(s)
+
+         puts "#{ANSI.clearline}#{s}"
+
+         InputHandler::redisplay_input
       end
    end
 
@@ -102,18 +124,23 @@ module Out
       log_entries.each do |e|
          contact = Main.contacts[Jabber::JID.new(e[:target])]
          target_s = contact ? contact.simple_name : e[:target]
-         m = method(e[:direction] == :from ? :message : :outgoing)
-         m.call(target_s,
-                e[:msg],
-                contact ? contact.color : :clear,
-                false,
-                ftime(e[:time].localtime, :history_datetime_format))
+         colors = contact ? [contact.color] : []
+         time = format_time(e[:time].localtime, :history_datetime_format)
+
+         if e[:direction] == :from
+            colors << :bold
+            m = method(:format_message_in)
+         else
+            m = method(:format_message_out)
+         end
+
+         puts m.call(target_s, e[:msg], colors, time)
       end
    end
 
-   def error(s, print_inline=true)
-      s = "#{ANSI.cleartoeol}error: #{s}".red.bold
-      print_inline ? inline(s) : puts(s)
+   def error(s, redisplay_input=true)
+      puts "#{ANSI.cleartoeol}error: #{s}".red.bold
+      InputHandler::redisplay_input if redisplay_input
    end
 
    def infoline(s)
@@ -139,12 +166,6 @@ module Out
       end
    end
 
-   def ftime(time=nil, format=:datetime_format)
-      return "" unless time
-      time = Time.now if time == :now
-
-      "#{time.strftime(Config.opts[format])} "
-   end
 end
 
 end
