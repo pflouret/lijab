@@ -20,20 +20,20 @@ Features
 
 * Tab completion for most things.
 * Shiny colors!
-* Logging
-* Roster / subscriptions handling
-* Status / priority handling
-* Delivery and display of chat state notifications
-* Hooks (on_message_received, on_message_sent, et al)
-* Fairly easy to make new commands in ruby
+* Logging.
+* Roster / subscriptions handling.
+* Status / priority handling.
+* Delivery and display of chat state notifications.
+* Hooks (on_message_received, on_message_sent, et al).
+* Fairly easy to make new commands in ruby.
 * Command aliases
 
 
 Requirements
 ------------
 
-* GNU Readline (pretty sure libedit won't work right now)
-* A color terminal might be a good idea
+* GNU Readline (pretty sure libedit won't work right now).
+* A very ansi-compatible terminal, color is probably a good idea.
 
 h3. Gems
 * xmpp4r
