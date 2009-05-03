@@ -23,9 +23,12 @@ module Config
    end
 
    def setup_basedir(basedir)
-      xdg = ENV["XDG_CONFIG_HOME"]
+      # xdg? meh
+      #xdg = ENV["XDG_CONFIG_HOME"]
+      #xdg && File.join(xdg, "lijab") ||
+
       @basedir = basedir ||
-                 xdg && File.join(xdg, "lijab") ||
+                 ENV["LIJABDIR"] ||
                  "~/.lijab"
       @basedir = File.expand_path(@basedir)
 
