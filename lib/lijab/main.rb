@@ -91,7 +91,11 @@ module Main
          end
 
          @client.add_message_callback do |msg|
-            Main.contacts[msg.from].handle_message(msg) if Main.contacts.key?(msg.from)
+            if Main.contacts.key?(msg.from)
+               Main.contacts[msg.from].handle_message(msg)
+            else
+               Main.contacts.handle_non_contact_message(msg)
+            end
          end
 
          Out::put("connecting...".yellow, true)

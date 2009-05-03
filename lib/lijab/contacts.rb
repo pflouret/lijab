@@ -210,6 +210,8 @@ module Contacts
 
             @roster.add(jid, nil, true)
          end
+
+         contact || self[jid]
       end
 
       def remove(jid)
@@ -266,6 +268,19 @@ module Contacts
             end
          end
          end_with_colon && matches.length == 1 ? "#{matches.first}:" : matches
+      end
+
+      def handle_non_contact_message(msg)
+         # TODO: improve this, maybe show the contact differentiated in /contacts
+
+         jid = msg.from.strip
+
+         ri = Jabber::Roster::Helper::RosterItem.new(Main.client)
+         ri.jid = jid
+
+         self[jid] = Contact.new(jid.to_s, ri)
+         self[jid].handle_message(msg)
+         #add(jid, Contact.new(jid.to_s, ri)).handle_message(msg)
       end
 
       def handle_presence(roster_item, old_p, new_p)
