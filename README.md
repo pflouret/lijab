@@ -35,12 +35,12 @@ Requirements
 * GNU Readline (pretty sure libedit won't work right now).
 * A very ansi-compatible terminal, color is probably a good idea.
 
-h3. Gems
+### Gems
 * xmpp4r
 * file-tail
 * term-ansicolor
 
-h3. Debian/Ubuntu
+### Debian/Ubuntu
 
     $ sudo apt-get install ruby1.8-dev rubygems1.8 libreadline-dev libopenssl-ruby
 
@@ -50,7 +50,7 @@ Installation
 
     $ sudo gem install lijab -s http://gems.github.com
 
-h3. Debian/Ubuntu
+### Debian/Ubuntu
 
 Also need to do
     
