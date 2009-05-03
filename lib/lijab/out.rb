@@ -96,7 +96,7 @@ module Out
       end
    end
 
-   def subscription(from, type, colors=[])
+   def subscription(from, type, msg=nil, colors=[])
       @monitor.synchronize do
          clear_infoline()
          InputHandler::delete_typed
@@ -106,8 +106,10 @@ module Out
          time = format_time(:now)
          case type
          when :subscribe
-            s = "#{time}** subscription request from #{from} received\n" \
-                "#{' '*time.length}** See '/help requests' to see how to handle requests."
+            indent = ' ' * time.length
+            s = "** #{time}subscription request from #{from} received:\n"
+            s += %{"#{msg}"\n} if msg
+            s += "** See '/help requests' to see how to handle requests."
          when :subscribed
             s = "** #{time}#{from} has subscribed to you"
          when :unsubscribed

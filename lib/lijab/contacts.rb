@@ -296,7 +296,7 @@ module Contacts
             #p = Jabber::Presence.new.set_type(:probe)
          end
 
-         Out::subscription(presence.from.to_s, presence.type) if show
+         Out::subscription(presence.from.to_s, presence.type, presence.status) if show
       end
    end
 end
