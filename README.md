@@ -48,7 +48,7 @@ Requirements
 Installation
 ------------
 
-    $ sudo gem install lijab -s http://gems.github.com
+    $ sudo gem install palbo-lijab -s http://gems.github.com
 
 ### Debian/Ubuntu
 
