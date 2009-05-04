@@ -79,7 +79,6 @@ task :release => [:clean, :version, :gemspec, :repackage] do
    require './lib/lijab/version.rb'
    if spec.version.to_s == Lijab::VERSION
       STDERR.puts "you forgot to bump the version!"
-      exit(1)
    end
 end
 
