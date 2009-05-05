@@ -8,7 +8,7 @@ require 'rake/gempackagetask'
 spec = Gem::Specification.new do |s|
 
    s.name = 'lijab'
-   s.version = '0.1.0'
+   s.version = '0.1.1'
    s.date = Time.now.to_s
    s.required_ruby_version = ">=1.8.0"
 
