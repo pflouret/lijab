@@ -198,8 +198,12 @@ module Contacts
          if contact
             self[jid] = contact
             if @short.key?(jid.node)
-               self[@short[jid.node].jid].simple_name = jid.strip.to_s
-               @short[@short[jid.node].jid.strip.to_s] = @short.delete(jid.node)
+               prev = @short[jid.node]
+
+               self[jid].simple_name = jid.strip.to_s
+               self[prev.jid].simple_name = prev.jid.strip.to_s
+
+               @short[prev.jid.strip.to_s] = @short.delete(jid.node)
                @short[jid.strip.to_s] = self[jid]
             else
                @short[jid.node] = self[jid]
