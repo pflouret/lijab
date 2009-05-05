@@ -73,7 +73,7 @@ connection died so you might have to restart the program.
 Bugs
 ----
 
-I make and unconscious effort to introduce bugs in all my programs, so people
+I make an unconscious effort to introduce bugs in all my programs, so people
 have something to entertain themselves with.
 
 Report bugs in http://palbo.github.com/lijab/issues, github pull request for patches.
