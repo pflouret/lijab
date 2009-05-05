@@ -38,12 +38,12 @@ module Out
    end
 
    def format_message_in(from, text, colors, time)
-      "#{ANSI.clearline}#{time}#{from} <- ".colored(*colors) + text
+      "#{ANSI.clearline}#{time}#{from} -> ".colored(*colors) + text
    end
    
    def format_message_out(to, text, colors, time)
 
-      prefix = "#{time}#{to} -> "
+      prefix = "#{time}#{to} <- "
       indent = " " * prefix.length
 
       lines = text.to_a
