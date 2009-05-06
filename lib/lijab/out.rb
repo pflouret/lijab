@@ -16,8 +16,8 @@ module Out
    module_function
 
    def put(s="\n", redisplay_input=false)
-      #clear_infoline()
-      puts "#{ANSI.clearline}#{s}"
+      print "#{ANSI.clearline}#{s}\n#{ANSI.clearline}"
+      STDOUT.flush
       InputHandler::redisplay_input if redisplay_input
    end
 
@@ -141,7 +141,8 @@ module Out
    end
 
    def error(s, redisplay_input=true)
-      puts "#{ANSI.cleartoeol}error: #{s}".red.bold
+      print "#{ANSI.clearline}error: #{s}\n#{ANSI.clearline}".red.bold
+      STDOUT.flush
       InputHandler::redisplay_input if redisplay_input
    end
 

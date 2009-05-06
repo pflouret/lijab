@@ -59,7 +59,7 @@ module Main
       begin
          setup_client()
       rescue SystemCallError, SocketError
-         Out::error("couldn't connect")
+         Out::error("couldn't connect", false)
          reconnect()
       end
 
@@ -76,20 +76,6 @@ module Main
       begin
          @client = Jabber::Client.new(Config.jid)
 
-         @client.on_exception do |e,stream,from|
-            @connected = false
-
-            case from
-            when :disconnected
-               Out::error("disconnected")
-               HooksHandler::handle_disconnect
-               reconnect()
-            else
-               # death before lost messages!
-               raise e || "exception raised from #{from}"
-            end
-         end
-
          @client.add_message_callback do |msg|
             if Main.contacts.key?(msg.from)
                Main.contacts[msg.from].handle_message(msg)
@@ -98,15 +84,16 @@ module Main
             end
          end
 
-         Out::put("connecting...".yellow, true)
-
          @client.use_ssl = Config.account[:use_ssl]
-         @client.connect(Config.account[:server], Config.account[:port])
+
+         Out::put("connecting...".yellow, false)
 
          loop do
             begin
+               @client.connect(Config.account[:server], Config.account[:port])
+
                if !Config.account[:password]
-                  print "#{Config.account[:name]} account password: "
+                  print "#{ANSI.clearline}#{Config.account[:name]} account password: "
                   system("stty -echo") # FIXME
                   STDIN.read_nonblock(9999999) rescue nil
                   Config.account[:password] = gets.chomp
@@ -122,6 +109,20 @@ module Main
             end
          end
 
+         @client.on_exception do |e,stream,from|
+            @connected = false
+
+            case from
+            when :disconnected
+               Out::error("disconnected", false)
+               HooksHandler::handle_disconnect
+               reconnect()
+            else
+               # death before lost messages!
+               raise e || "exception raised from #{from}"
+            end
+         end
+
          @contacts = Contacts::Contacts.new(Jabber::Roster::Helper.new(@client))
          @client.send(@presence)
          @connected = true
@@ -129,7 +130,7 @@ module Main
          setup_after_connect()
          HooksHandler::handle_connect
 
-         Out::put("connected!".green, true)
+         Out::put("connected!".green)
       ensure
          @monitor.exit
       end
@@ -139,6 +140,7 @@ module Main
       do_sleep = 1
       loop do
          do_sleep.downto(1) do |i|
+            Out::make_infoline
             Out::infoline("trying reconnect in #{i*5} seconds...")
             sleep(5)
          end
