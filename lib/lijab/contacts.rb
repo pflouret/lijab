@@ -195,6 +195,8 @@ module Contacts
       end
 
       def add(jid, contact=nil)
+         return unless jid.node # XXX: apparently transports have no node, do something here?
+
          if contact
             self[jid] = contact
             if @short.key?(jid.node)
